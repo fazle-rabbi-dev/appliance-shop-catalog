@@ -40,6 +40,6 @@ export interface CatalogState {
 }
 
 export interface SessionUser {
-  email: string
+  username: string
   role: 'admin'
 }

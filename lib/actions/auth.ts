@@ -14,12 +14,12 @@ function safeNext(value: string) {
 }
 
 export async function signInAction(_previous: LoginState, formData: FormData): Promise<LoginState> {
-  const email = String(formData.get('email') ?? '')
+  const username = String(formData.get('username') ?? '')
   const password = String(formData.get('password') ?? '')
   const next = safeNext(String(formData.get('next') ?? ''))
 
   try {
-    await signIn(email, password)
+    await signIn(username, password)
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Could not sign in.' }
   }

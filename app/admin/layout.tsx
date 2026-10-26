@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = await requireAdmin('/admin')
 
   return (
-    <AdminShell userEmail={user.email} signOut={signOutAction}>
+    <AdminShell username={user.username} signOut={signOutAction}>
       {children}
     </AdminShell>
   )

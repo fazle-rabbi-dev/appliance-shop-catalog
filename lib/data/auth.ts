@@ -8,12 +8,12 @@ import type { SessionUser } from '@/lib/types'
 /**
  * THE AUTH BOUNDARY.
  *
- * Demo implementation: one admin account from env vars, signed cookie session.
+ * Single admin account from env vars + signed cookie session.
  * To move to Supabase Auth or a Mongo-backed session store, keep the exported
  * functions and replace their bodies. Nothing else in the app reads cookies.
  */
-const DEMO_EMAIL = process.env.ADMIN_EMAIL ?? 'admin@shop.test'
-const DEMO_PASSWORD = process.env.ADMIN_PASSWORD ?? 'admin1234'
+const AUTH_USERNAME = process.env.ADMIN_USERNAME
+const AUTH_PASSWORD = process.env.ADMIN_PASSWORD
 const SESSION_SECRET = process.env.AUTH_SECRET ?? 'dev-only-insecure-secret-change-me'
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7
 
@@ -44,8 +44,8 @@ function verifyToken(token: string | undefined): SessionUser | null {
 
   try {
     const parsed = JSON.parse(Buffer.from(payload, 'base64url').toString()) as SessionPayload
-    if (parsed.exp < Date.now()) return null
-    return { email: parsed.email, role: parsed.role }
+    if (parsed.exp < Date.now() || !parsed.username) return null
+    return { username: parsed.username, role: parsed.role }
   } catch {
     return null
   }
@@ -63,12 +63,16 @@ export async function requireAdmin(returnTo?: string): Promise<SessionUser> {
   return session
 }
 
-export async function signIn(email: string, password: string): Promise<SessionUser> {
-  const ok =
-    email.trim().toLowerCase() === DEMO_EMAIL.toLowerCase() && password === DEMO_PASSWORD
-  if (!ok) throw new Error('Invalid email or password.')
+export async function signIn(username: string, password: string): Promise<SessionUser> {
+  if (!AUTH_USERNAME || !AUTH_PASSWORD) {
+    throw new Error('Sign in is not configured. Set ADMIN_USERNAME and ADMIN_PASSWORD.')
+  }
 
-  const user: SessionUser = { email: DEMO_EMAIL, role: 'admin' }
+  const userMatch = safeEqual(username.trim(), AUTH_USERNAME)
+  const passwordMatch = safeEqual(password, AUTH_PASSWORD)
+  if (!userMatch || !passwordMatch) throw new Error('Invalid username or password.')
+
+  const user: SessionUser = { username: AUTH_USERNAME, role: 'admin' }
   const store = await cookies()
   store.set(SESSION_COOKIE, createToken(user), {
     httpOnly: true,
@@ -85,8 +89,10 @@ export async function signOut(): Promise<void> {
   store.delete(SESSION_COOKIE)
 }
 
-/** Demo credentials, shown on the login screen only outside production. */
-export function demoCredentials() {
-  if (process.env.NODE_ENV === 'production' && process.env.ADMIN_EMAIL) return null
-  return { email: DEMO_EMAIL, password: DEMO_PASSWORD }
+/** Constant-time string comparison, tolerant of length differences. */
+function safeEqual(input: string, expected: string) {
+  const a = Buffer.from(input)
+  const b = Buffer.from(expected)
+  if (a.length !== b.length) return false
+  return timingSafeEqual(a, b)
 }

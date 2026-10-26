@@ -4,7 +4,7 @@ import { LayoutDashboard, MapPin, Menu, Phone, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { adminRoutes, homeSectionHref, loginHref, productsHref } from '@/lib/routes'
+import { adminRoutes, homeSectionHref, productsHref } from '@/lib/routes'
 import { shopConfig } from '@/lib/shop-config'
 import { cn } from '@/lib/utils'
 
@@ -83,7 +83,7 @@ export function SiteHeader() {
         </form>
 
         <Link
-          href={loginHref(adminRoutes.dashboard)}
+          href={adminRoutes.dashboard}
           className="ml-auto hidden items-center gap-1.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex lg:ml-0"
         >
           <LayoutDashboard className="size-4" aria-hidden="true" />
@@ -142,7 +142,7 @@ export function SiteHeader() {
                 ))}
                 <li>
                   <Link
-                    href={loginHref(adminRoutes.dashboard)}
+                    href={adminRoutes.dashboard}
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2 rounded-md px-2 py-3 text-base font-medium text-muted-foreground hover:bg-muted"
                   >

@@ -107,9 +107,9 @@ Everything above `lib/data/` talks to interfaces only. Two boundaries:
 1. **Catalog** — `CatalogRepository` in `lib/data/catalog-repository.ts`, exported as `catalogRepository`.
    - reads: `listCategories`, `getCategoryBySlug`, `listProducts`, `listPublishedProducts`, `getProductById`, `getPublishedProductBySlug`
    - writes: `createProduct`, `updateProduct`, `patchProduct`, `deleteProduct`, `resetDemoData` (prototype only)
-2. **Auth** — functions in `lib/data/auth.ts`: `getSession`, `requireAdmin(returnTo?)`, `signIn(email, password)`, `signOut`.
+2. **Auth** — functions in `lib/data/auth.ts`: `getSession`, `requireAdmin(returnTo?)`, `signIn(username, password)`, `signOut`.
 
-Current implementation: in-memory map seeded from `lib/mock-data.ts`, kept on `globalThis`. Data resets when the dev server restarts. Auth is one demo account (`ADMIN_EMAIL` / `ADMIN_PASSWORD`, defaults `admin@shop.test` / `admin1234`) with an HMAC-signed cookie (`AUTH_SECRET`).
+Current implementation: in-memory map seeded from `lib/mock-data.ts`, kept on `globalThis`. Data resets when the dev server restarts. Auth is a single account from `ADMIN_USERNAME` + `ADMIN_PASSWORD` (no defaults, no demo hint in the UI) with an HMAC-signed cookie (`AUTH_SECRET`).
 
 Rules:
 

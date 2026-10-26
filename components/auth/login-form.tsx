@@ -8,13 +8,7 @@ import { shopConfig } from '@/lib/shop-config'
 
 const initialState: LoginState = {}
 
-export function LoginForm({
-  next,
-  demo,
-}: {
-  next: string
-  demo: { email: string; password: string } | null
-}) {
+export function LoginForm({ next }: { next: string }) {
   const [state, formAction, pending] = useActionState(signInAction, initialState)
 
   return (
@@ -31,16 +25,17 @@ export function LoginForm({
         <input type="hidden" name="next" value={next} />
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
+          <label htmlFor="username" className="text-sm font-medium">
+            Username
           </label>
           <input
-            id="email"
-            name="email"
-            type="email"
+            id="username"
+            name="username"
+            type="text"
             autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
             required
-            defaultValue={demo?.email}
             aria-invalid={Boolean(state.error)}
             className="h-11 w-full rounded-lg border border-input bg-card px-3 text-base sm:text-sm aria-invalid:border-destructive"
           />
@@ -56,7 +51,6 @@ export function LoginForm({
             type="password"
             autoComplete="current-password"
             required
-            defaultValue={demo?.password}
             aria-invalid={Boolean(state.error)}
             className="h-11 w-full rounded-lg border border-input bg-card px-3 text-base sm:text-sm aria-invalid:border-destructive"
           />
@@ -77,13 +71,6 @@ export function LoginForm({
           {pending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
           {pending ? 'Signing in…' : 'Sign in'}
         </button>
-
-        {demo ? (
-          <p className="rounded-lg bg-muted p-2.5 text-xs leading-relaxed text-muted-foreground">
-            Demo account: <span className="font-medium text-foreground">{demo.email}</span> /{' '}
-            <span className="font-medium text-foreground">{demo.password}</span>
-          </p>
-        ) : null}
       </form>
 
       <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">

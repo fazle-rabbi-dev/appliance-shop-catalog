@@ -14,11 +14,11 @@ const NAV = [
 ] as const
 
 export function AdminShell({
-  userEmail,
+  username,
   signOut,
   children,
 }: {
-  userEmail: string
+  username: string
   signOut: () => Promise<void>
   children: React.ReactNode
 }) {
@@ -83,7 +83,7 @@ export function AdminShell({
           </nav>
 
           <div className="flex items-center justify-between gap-3 border-t border-border pt-3 sm:justify-end sm:border-t-0 sm:pt-0">
-            <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
+            <span className="truncate text-xs text-muted-foreground">{username}</span>
             <form action={signOut}>
               <button
                 type="submit"
