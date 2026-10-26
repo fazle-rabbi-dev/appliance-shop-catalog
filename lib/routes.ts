@@ -23,6 +23,9 @@ export const adminRoutes = {
   products: '/admin/products',
   newProduct: '/admin/products/new',
   editProduct: (id: string) => `/admin/products/${encodeURIComponent(id)}/edit`,
+  categories: '/admin/categories',
+  newCategory: '/admin/categories/new',
+  editCategory: (id: string) => `/admin/categories/${encodeURIComponent(id)}/edit`,
 }
 
 export function loginHref(next?: string) {

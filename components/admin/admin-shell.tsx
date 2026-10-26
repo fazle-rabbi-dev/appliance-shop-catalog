@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, LayoutDashboard, LogOut, Package, Plus } from 'lucide-react'
+import { ArrowLeft, LayoutDashboard, LogOut, Package, Plus, Tags } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 const NAV = [
   { href: adminRoutes.dashboard, label: 'Overview', icon: LayoutDashboard, exact: true },
   { href: adminRoutes.products, label: 'Products', icon: Package, exact: false },
+  { href: adminRoutes.categories, label: 'Categories', icon: Tags, exact: false },
   { href: adminRoutes.newProduct, label: 'Add product', icon: Plus, exact: true },
 ] as const
 

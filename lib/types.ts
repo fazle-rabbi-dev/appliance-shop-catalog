@@ -10,6 +10,8 @@ export interface Category {
   description: string
 }
 
+export type CategoryInput = Omit<Category, 'id'>
+
 export interface ProductSpec {
   label: string
   value: string

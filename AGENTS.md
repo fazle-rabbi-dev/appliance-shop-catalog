@@ -50,7 +50,8 @@ components/
   storefront/             site-header, hero-section, category-grid, product-card,
                           home-page, products-page, product-detail-page,
                           product-gallery, visit-section, site-footer
-  admin/                  admin-shell, admin-products, product-form, reset-demo-data
+  admin/                  admin-shell, admin-products, product-form,
+                          admin-categories, category-form, reset-demo-data
   shared/                 product-image, availability-badge, category-icon,
                           toast-provider, confirm-dialog
   ui/                     shadcn components
@@ -66,9 +67,11 @@ lib/
     seed.ts               Fills the DB from mock-data
     auth.ts               THE auth boundary: getSession, requireAdmin, signIn, signOut
   actions/
-    catalog.ts            Server actions: save/patch/delete/reset
+    catalog.ts            Server actions: product save/patch/delete + reset
+    categories.ts         Server actions: category save/delete
     auth.ts               Server actions: signIn/signOut
   product-validation.ts   Form + server-side validation, slug generation
+  category-validation.ts  Category form + server-side validation
   shop-config.ts          Shop name, address, phone, hours, socials
   format.ts               Price formatting (Taka, uses "Tk" text, not ৳)
   utils.ts                cn()
@@ -87,6 +90,9 @@ public/images/            Product and hero images
 | `/admin/products`                    | Admin product list            |
 | `/admin/products/new`                | Create product                |
 | `/admin/products/<id>/edit`          | Edit product                  |
+| `/admin/categories`                  | Admin category list           |
+| `/admin/categories/new`              | Create category               |
+| `/admin/categories/<id>/edit`        | Edit category                 |
 
 Build URLs with the helpers in `lib/routes.ts`. Don't hardcode path strings in components.
 
@@ -102,7 +108,8 @@ Data flows: server components read the repository directly, and the client mutat
 
 Rules:
 
-- Slugs must be unique. The repository enforces this, and the form generates the slug from the name.
+- Slugs must be unique for both products and categories. The repository enforces this (unique index + friendly error), and forms generate the slug from the name.
+- A category cannot be deleted while products reference it. Move or delete those products first.
 - Only `published` products appear on the storefront.
 - `featured` products show in the home page's Featured section.
 
@@ -111,8 +118,8 @@ Rules:
 Everything above `lib/data/` talks to interfaces only. Two boundaries:
 
 1. **Catalog** — `CatalogRepository` in `lib/data/catalog-repository.ts`, exported as `catalogRepository`.
-   - reads: `listCategories`, `getCategoryBySlug`, `listProducts`, `listPublishedProducts`, `getProductById`, `getPublishedProductBySlug`
-   - writes: `createProduct`, `updateProduct`, `patchProduct`, `deleteProduct`, `resetDemoData` (prototype only)
+   - reads: `listCategories`, `getCategoryBySlug`, `getCategoryById`, `listProducts`, `listPublishedProducts`, `getProductById`, `getPublishedProductBySlug`
+   - writes: `createProduct`, `updateProduct`, `patchProduct`, `deleteProduct`, `createCategory`, `updateCategory`, `deleteCategory`, `resetDemoData` (prototype only)
 2. **Auth** — functions in `lib/data/auth.ts`: `getSession`, `requireAdmin(returnTo?)`, `signIn(username, password)`, `signOut`.
 
 Current implementation: MongoDB via Mongoose. Collections are `categories` and `products`; both use string `_id`s (seed categories are `cat-*`, products default to a UUID). `products.images` is an array of `{ url, publicId }` subdocuments, `products.specs` an array of `{ label, value }`, and `createdAt`/`updatedAt` come from Mongoose timestamps. `slug` has a unique index on both collections.

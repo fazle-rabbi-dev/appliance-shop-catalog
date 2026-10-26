@@ -36,7 +36,7 @@ export interface ProductDoc {
 const categorySchema = new Schema<CategoryDoc>(
   {
     // Fixed string ids ('cat-fans') keep products.categoryId readable and stable.
-    _id: { type: String, required: true },
+    _id: { type: String, default: () => crypto.randomUUID() },
     name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, trim: true },
     icon: {
