@@ -3,7 +3,7 @@ import { signOutAction } from '@/lib/actions/auth'
 import { requireAdmin } from '@/lib/data/auth'
 
 export const metadata = {
-  title: 'Admin — Rahman Electronics',
+  title: 'অ্যাডমিন — রহমান ইলেকট্রনিকস',
   robots: { index: false, follow: false },
 }
 

@@ -18,7 +18,7 @@ export default async function StorefrontLayout({
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-card focus:px-4 focus:py-2"
       >
-        Skip to content
+        মূল কনটেন্টে যান
       </a>
       <SiteHeader />
       <main id="main" tabIndex={-1} className="flex-1 outline-none">

@@ -14,7 +14,7 @@ import type { Availability, Product, ProductInput } from '@/lib/types'
 export type ActionResult = { ok: true } | { ok: false; error: string }
 export type ProductActionResult = { ok: true; product: Product } | { ok: false; error: string }
 
-const INVALID_SESSION = 'Your session expired. Sign in again.'
+const INVALID_SESSION = 'আপনার সেশন শেষ হয়েছে। আবার লগইন করুন।'
 
 function message(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback
@@ -33,7 +33,7 @@ export async function saveProductAction(id: string | null, input: ProductInput):
   try {
     const categories = await catalogRepository.listCategories()
     if (!categories.some((category) => category.id === input.categoryId)) {
-      return { ok: false, error: 'That category does not exist.' }
+      return { ok: false, error: 'এই ক্যাটাগরিটি নেই।' }
     }
 
     const product = id
@@ -42,7 +42,7 @@ export async function saveProductAction(id: string | null, input: ProductInput):
     refreshCatalog()
     return { ok: true, product }
   } catch (error) {
-    return { ok: false, error: message(error, 'Could not save the product.') }
+    return { ok: false, error: message(error, 'পণ্য সংরক্ষণ করা যায়নি।') }
   }
 }
 
@@ -57,7 +57,7 @@ export async function patchProductAction(
     refreshCatalog()
     return { ok: true }
   } catch (error) {
-    return { ok: false, error: message(error, 'Could not update the product.') }
+    return { ok: false, error: message(error, 'পণ্য আপডেট করা যায়নি।') }
   }
 }
 
@@ -69,7 +69,7 @@ export async function deleteProductAction(id: string): Promise<ActionResult> {
     refreshCatalog()
     return { ok: true }
   } catch (error) {
-    return { ok: false, error: message(error, 'Could not delete the product.') }
+    return { ok: false, error: message(error, 'পণ্য মোছা যায়নি।') }
   }
 }
 
@@ -81,6 +81,6 @@ export async function resetDemoDataAction(): Promise<ActionResult> {
     refreshCatalog()
     return { ok: true }
   } catch (error) {
-    return { ok: false, error: message(error, 'Could not reset the catalog.') }
+    return { ok: false, error: message(error, 'ক্যাটালগ রিসেট করা যায়নি।') }
   }
 }

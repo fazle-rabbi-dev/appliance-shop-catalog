@@ -35,33 +35,33 @@ export function isValidImageUrl(value: string) {
 export function validateProduct(values: ProductFormValues): ProductFormErrors {
   const errors: ProductFormErrors = {}
 
-  if (!values.name.trim()) errors.name = 'Enter a product name.'
-  else if (values.name.trim().length > 120) errors.name = 'Keep the name under 120 characters.'
+  if (!values.name.trim()) errors.name = 'পণ্যের নাম লিখুন।'
+  else if (values.name.trim().length > 120) errors.name = 'নাম ১২০ অক্ষরের মধ্যে রাখুন।'
 
-  if (!values.slug.trim()) errors.slug = 'Enter a URL slug.'
-  else if (!SLUG_PATTERN.test(values.slug)) errors.slug = 'Use lowercase letters, numbers and single hyphens only.'
+  if (!values.slug.trim()) errors.slug = 'URL স্লাগ লিখুন।'
+  else if (!SLUG_PATTERN.test(values.slug)) errors.slug = 'শুধু ছোট হাতের ইংরেজি অক্ষর, সংখ্যা ও একক হাইফেন ব্যবহার করুন।'
 
-  if (!values.categoryId) errors.categoryId = 'Choose a category.'
-  if (!values.brand.trim()) errors.brand = 'Enter the brand.'
+  if (!values.categoryId) errors.categoryId = 'একটি ক্যাটাগরি বেছে নিন।'
+  if (!values.brand.trim()) errors.brand = 'ব্র্যান্ডের নাম লিখুন।'
 
   const price = Number(values.price)
-  if (values.price.trim() === '') errors.price = 'Enter a price.'
-  else if (!Number.isFinite(price) || price < 0) errors.price = 'Price must be a number of 0 or more.'
-  else if (price > 10_000_000) errors.price = 'That price looks too high.'
+  if (values.price.trim() === '') errors.price = 'দাম লিখুন।'
+  else if (!Number.isFinite(price) || price < 0) errors.price = 'দাম ০ বা তার বেশি একটি সংখ্যা হতে হবে।'
+  else if (price > 10_000_000) errors.price = 'দামটি খুব বেশি মনে হচ্ছে।'
 
-  if (!values.description.trim()) errors.description = 'Add a short description.'
-  else if (values.description.length > 2000) errors.description = 'Keep the description under 2000 characters.'
+  if (!values.description.trim()) errors.description = 'সংক্ষিপ্ত বিবরণ লিখুন।'
+  else if (values.description.length > 2000) errors.description = 'বিবরণ ২০০০ অক্ষরের মধ্যে রাখুন।'
 
   const filledImages = values.images.map((image) => image.url.trim()).filter(Boolean)
-  if (filledImages.length === 0) errors.images = 'Add at least one image URL.'
+  if (filledImages.length === 0) errors.images = 'অন্তত একটি ছবির URL দিন।'
   const imageRows: Record<number, string> = {}
   values.images.forEach((image, index) => {
-    if (image.url.trim() && !isValidImageUrl(image.url)) imageRows[index] = 'Enter a full https:// URL or a /images/ path.'
+    if (image.url.trim() && !isValidImageUrl(image.url)) imageRows[index] = 'পূর্ণ https:// URL অথবা /images/ পাথ দিন।'
   })
   if (Object.keys(imageRows).length) errors.imageRows = imageRows
 
   const partialSpec = values.specs.some((s) => Boolean(s.label.trim()) !== Boolean(s.value.trim()))
-  if (partialSpec) errors.specs = 'Each specification needs both a label and a value.'
+  if (partialSpec) errors.specs = 'প্রতিটি স্পেসিফিকেশনে নাম ও মান দুটোই লাগবে।'
 
   return errors
 }
@@ -74,18 +74,18 @@ const AVAILABILITY: Availability[] = ['in_stock', 'low_stock', 'out_of_stock']
 
 /** Server-side guard. Returns a user-facing message, or null when valid. */
 export function validateProductInput(input: ProductInput): string | null {
-  if (!input.name.trim()) return 'Product name is required.'
-  if (input.name.trim().length > 120) return 'Keep the name under 120 characters.'
-  if (!SLUG_PATTERN.test(input.slug)) return 'Slug must use lowercase letters, numbers and hyphens.'
-  if (!input.categoryId) return 'Choose a category.'
-  if (!input.brand.trim()) return 'Brand is required.'
-  if (!Number.isFinite(input.price) || input.price < 0) return 'Price must be 0 or more.'
-  if (input.price > 10_000_000) return 'That price looks too high.'
-  if (!input.description.trim()) return 'Description is required.'
-  if (input.description.length > 2000) return 'Keep the description under 2000 characters.'
-  if (input.images.length === 0) return 'Add at least one image.'
-  if (input.images.some((image) => !isValidImageUrl(image.url))) return 'Every image needs a valid URL.'
-  if (!AVAILABILITY.includes(input.availability)) return 'Pick a valid availability.'
+  if (!input.name.trim()) return 'পণ্যের নাম আবশ্যক।'
+  if (input.name.trim().length > 120) return 'নাম ১২০ অক্ষরের মধ্যে রাখুন।'
+  if (!SLUG_PATTERN.test(input.slug)) return 'স্লাগে ছোট হাতের ইংরেজি অক্ষর, সংখ্যা ও হাইফেন ব্যবহার করুন।'
+  if (!input.categoryId) return 'একটি ক্যাটাগরি বেছে নিন।'
+  if (!input.brand.trim()) return 'ব্র্যান্ডের নাম আবশ্যক।'
+  if (!Number.isFinite(input.price) || input.price < 0) return 'দাম ০ বা তার বেশি হতে হবে।'
+  if (input.price > 10_000_000) return 'দামটি খুব বেশি মনে হচ্ছে।'
+  if (!input.description.trim()) return 'বিবরণ আবশ্যক।'
+  if (input.description.length > 2000) return 'বিবরণ ২০০০ অক্ষরের মধ্যে রাখুন।'
+  if (input.images.length === 0) return 'অন্তত একটি ছবি দিন।'
+  if (input.images.some((image) => !isValidImageUrl(image.url))) return 'প্রতিটি ছবির জন্য সঠিক URL দিন।'
+  if (!AVAILABILITY.includes(input.availability)) return 'সঠিক স্টক স্ট্যাটাস বেছে নিন।'
   return null
 }
 

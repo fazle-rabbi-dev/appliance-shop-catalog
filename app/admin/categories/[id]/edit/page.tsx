@@ -3,7 +3,7 @@ import { CategoryForm } from '@/components/admin/category-form'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 
 export const metadata = {
-  title: 'Edit category — Admin',
+  title: 'ক্যাটাগরি সম্পাদনা — অ্যাডমিন',
 }
 
 export default async function EditCategoryRoute({ params }: { params: Promise<{ id: string }> }) {

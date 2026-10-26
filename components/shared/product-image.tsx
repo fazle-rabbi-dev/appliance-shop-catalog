@@ -21,7 +21,7 @@ export function ProductImage({ src, alt, className, imgClassName, eager }: Produ
       {failed ? (
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
           <ImageOff className="size-6" aria-hidden="true" />
-          <span className="text-xs">Image unavailable</span>
+          <span className="text-xs">ছবি পাওয়া যায়নি</span>
           <span className="sr-only">{alt}</span>
         </div>
       ) : (

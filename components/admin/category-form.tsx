@@ -62,7 +62,7 @@ export function CategoryForm({ category }: { category?: Category }) {
     const found = validateCategory(values)
     setErrors(found)
     if (hasCategoryErrors(found)) {
-      notify('Please fix the highlighted fields.', 'error')
+      notify('চিহ্নিত ঘরগুলো ঠিক করুন।', 'error')
       return
     }
 
@@ -76,7 +76,7 @@ export function CategoryForm({ category }: { category?: Category }) {
       return
     }
 
-    notify(isEdit ? `Saved changes to “${input.name}”.` : `Added “${input.name}”.`)
+    notify(isEdit ? `“${input.name}” এর পরিবর্তন সংরক্ষণ হয়েছে।` : `“${input.name}” যোগ করা হয়েছে।`)
     router.push(adminRoutes.categories)
     router.refresh()
   }
@@ -91,20 +91,20 @@ export function CategoryForm({ category }: { category?: Category }) {
           className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          Back to categories
+          ক্যাটাগরিতে ফিরে যান
         </Link>
         <h1 className="text-2xl font-semibold text-balance sm:text-3xl">
-          {isEdit ? `Edit ${category?.name}` : 'Add a category'}
+          {isEdit ? `${category?.name} সম্পাদনা` : 'ক্যাটাগরি যোগ করুন'}
         </h1>
-        <p className="text-sm text-muted-foreground">Categories group products on the storefront menu and homepage.</p>
+        <p className="text-sm text-muted-foreground">ক্যাটাগরি দিয়ে ওয়েবসাইটের মেনু ও হোমপেজে পণ্য সাজানো হয়।</p>
       </div>
 
       <fieldset className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:p-5">
-        <legend className="sr-only">Category details</legend>
+        <legend className="sr-only">ক্যাটাগরির তথ্য</legend>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={fieldId('name')} className="text-sm font-medium">
-            Name <span className="text-destructive">*</span>
+            নাম <span className="text-destructive">*</span>
           </label>
           <input
             id={fieldId('name')}
@@ -125,7 +125,7 @@ export function CategoryForm({ category }: { category?: Category }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <label htmlFor={fieldId('slug')} className="text-sm font-medium">
-              URL slug <span className="text-destructive">*</span>
+              URL স্লাগ <span className="text-destructive">*</span>
             </label>
             <input
               id={fieldId('slug')}
@@ -146,14 +146,14 @@ export function CategoryForm({ category }: { category?: Category }) {
               </p>
             ) : (
               <p className="truncate text-xs text-muted-foreground">
-                {`Storefront link: /products?category=${values.slug || 'your-category'}`}
+                {`ওয়েবসাইট লিংক: /products?category=${values.slug || 'আপনার-ক্যাটাগরি'}`}
               </p>
             )}
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={fieldId('icon')} className="text-sm font-medium">
-              Icon
+              আইকন
             </label>
             <div className="flex items-center gap-2">
               <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-surface text-foreground">
@@ -184,7 +184,7 @@ export function CategoryForm({ category }: { category?: Category }) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={fieldId('description')} className="text-sm font-medium">
-            Description
+            বিবরণ
           </label>
           <textarea
             id={fieldId('description')}
@@ -193,7 +193,7 @@ export function CategoryForm({ category }: { category?: Category }) {
             onChange={(e) => update({ description: e.target.value })}
             aria-invalid={Boolean(errors.description)}
             aria-describedby={errorId('description')}
-            placeholder="Single door, double door and side-by-side"
+            placeholder="সিঙ্গেল ডোর, ডাবল ডোর ও সাইড-বাই-সাইড"
             className={cn(inputClass, 'h-auto py-2.5 leading-relaxed')}
           />
           {errors.description ? (
@@ -208,11 +208,11 @@ export function CategoryForm({ category }: { category?: Category }) {
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row">
         <Link href={adminRoutes.categories} className={cn(buttonVariants({ variant: 'outline' }), 'h-11 px-4')}>
-          Cancel
+          বাতিল
         </Link>
         <Button type="submit" disabled={saving} className="h-11 px-4">
           {saving ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
-          {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Add category'}
+          {saving ? 'সংরক্ষণ হচ্ছে…' : isEdit ? 'পরিবর্তন সংরক্ষণ' : 'ক্যাটাগরি যোগ করুন'}
         </Button>
       </div>
     </form>

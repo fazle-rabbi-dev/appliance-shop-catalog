@@ -8,7 +8,7 @@ import type { Category, CategoryInput } from '@/lib/types'
 
 export type CategoryActionResult = { ok: true; category: Category } | { ok: false; error: string }
 
-const INVALID_SESSION = 'Your session expired. Sign in again.'
+const INVALID_SESSION = 'আপনার সেশন শেষ হয়েছে। আবার লগইন করুন।'
 
 function message(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback
@@ -34,7 +34,7 @@ export async function saveCategoryAction(
     refreshCatalog()
     return { ok: true, category }
   } catch (error) {
-    return { ok: false, error: message(error, 'Could not save the category.') }
+    return { ok: false, error: message(error, 'ক্যাটাগরি সংরক্ষণ করা যায়নি।') }
   }
 }
 
@@ -46,6 +46,6 @@ export async function deleteCategoryAction(id: string): Promise<{ ok: true } | {
     refreshCatalog()
     return { ok: true }
   } catch (error) {
-    return { ok: false, error: message(error, 'Could not delete the category.') }
+    return { ok: false, error: message(error, 'ক্যাটাগরি মোছা যায়নি।') }
   }
 }

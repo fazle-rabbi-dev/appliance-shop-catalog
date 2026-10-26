@@ -17,15 +17,15 @@ export function ProductDetailPage({
   category?: Category
   related: Product[]
 }) {
-  const enquiry = `Hello ${shopConfig.name}, is the ${product.name}${product.model ? ` (${product.model})` : ''} available? Listed at ${formatTaka(product.price)}.`
+  const enquiry = `আসসালামু আলাইকুম ${shopConfig.name}, ${product.name}${product.model ? ` (${product.model})` : ''} কি স্টকে আছে? ওয়েবসাইটে দাম দেখাচ্ছে ${formatTaka(product.price)}।`
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground">
+      <nav aria-label="ব্রেডক্রাম্ব" className="mb-6 text-sm text-muted-foreground">
         <ol className="flex flex-wrap items-center gap-1.5">
           <li>
             <Link href="/" className="hover:text-foreground">
-              Home
+              হোম
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -54,14 +54,14 @@ export function ProductDetailPage({
           <div className="flex flex-col gap-3">
             <p className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
               {product.brand}
-              {product.model ? <span className="normal-case"> · Model {product.model}</span> : null}
+              {product.model ? <span className="normal-case"> · মডেল {product.model}</span> : null}
             </p>
             <h1 className="text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl">{product.name}</h1>
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-3xl font-semibold tabular-nums">{formatTaka(product.price)}</p>
               <AvailabilityBadge value={product.availability} />
             </div>
-            <p className="text-xs text-muted-foreground">Reference price. Confirm the final price at the shop.</p>
+            <p className="text-xs text-muted-foreground">এটি ধারণাপ্রসূত দাম। চূড়ান্ত দাম দোকানে নিশ্চিত করুন।</p>
           </div>
 
           <p className="text-base leading-relaxed text-pretty text-muted-foreground">{product.description}</p>
@@ -69,8 +69,8 @@ export function ProductDetailPage({
           <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:p-5">
             <p className="text-sm font-semibold">
               {product.availability === 'out_of_stock'
-                ? 'Currently out of stock — ask us when it will be back.'
-                : 'Interested? Contact the shop to reserve or confirm stock.'}
+                ? 'এখন স্টকে নেই — কবে আসবে জানতে আমাদের জিজ্ঞেস করুন।'
+                : 'আগ্রহী? স্টক নিশ্চিত করতে বা বুক করতে দোকানে যোগাযোগ করুন।'}
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               <a
@@ -78,7 +78,7 @@ export function ProductDetailPage({
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <Phone className="size-4" aria-hidden="true" />
-                Call shop
+                দোকানে কল করুন
               </a>
               <a
                 href={whatsappLink(enquiry)}
@@ -87,7 +87,7 @@ export function ProductDetailPage({
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 text-base font-medium transition-colors hover:bg-muted"
               >
                 <MessageCircle className="size-4" aria-hidden="true" />
-                Ask on WhatsApp
+                হোয়াটসঅ্যাপে জিজ্ঞেস করুন
               </a>
             </div>
             <Link
@@ -95,14 +95,14 @@ export function ProductDetailPage({
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
             >
               <MapPin className="size-4" aria-hidden="true" />
-              {shopConfig.address.line1} · See hours and directions
+              {shopConfig.address.line1} · সময় ও ঠিকানা দেখুন
             </Link>
           </div>
 
           {product.specs.length > 0 ? (
             <section aria-labelledby="specs-title" className="flex flex-col gap-3">
               <h2 id="specs-title" className="text-lg font-semibold">
-                Specifications
+                স্পেসিফিকেশন
               </h2>
               <dl className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
                 {product.specs.map((spec) => (
@@ -121,14 +121,14 @@ export function ProductDetailPage({
         <section aria-labelledby="related-title" className="mt-16 border-t border-border pt-10">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <h2 id="related-title" className="text-xl font-semibold tracking-tight sm:text-2xl">
-              More {category?.name.toLowerCase() ?? 'products'}
+              আরও {category?.name ?? 'পণ্য'}
             </h2>
             {category ? (
               <Link
                 href={productsHref({ category: category.slug })}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
               >
-                View all
+                সব দেখুন
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             ) : null}

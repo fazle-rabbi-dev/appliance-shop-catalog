@@ -14,7 +14,7 @@ export function ResetDemoData() {
   function handleConfirm() {
     startTransition(async () => {
       const result = await resetDemoDataAction()
-      notify(result.ok ? 'Demo data restored.' : result.error, result.ok ? 'success' : 'error')
+      notify(result.ok ? 'ডেমো ডেটা ফিরিয়ে আনা হয়েছে।' : result.error, result.ok ? 'success' : 'error')
       setOpen(false)
     })
   }
@@ -22,13 +22,13 @@ export function ResetDemoData() {
   return (
     <>
       <Button variant="outline" onClick={() => setOpen(true)}>
-        Reset demo data
+        ডেমো ডেটা রিসেট
       </Button>
       <ConfirmDialog
         open={open}
-        title="Reset all demo data?"
-        description="All products you added, edited or deleted will be replaced by the original sample catalog."
-        confirmLabel="Reset data"
+        title="সব ডেমো ডেটা রিসেট করবেন?"
+        description="আপনি যে পণ্য যোগ, সম্পাদনা বা মুছে ফেলেছেন সবগুলো মুছে গিয়ে আগের নমুনা ক্যাটালগ ফিরে আসবে।"
+        confirmLabel="ডেটা রিসেট"
         pending={pending}
         onConfirm={handleConfirm}
         onCancel={() => setOpen(false)}

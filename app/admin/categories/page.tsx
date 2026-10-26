@@ -2,7 +2,7 @@ import { AdminCategories } from '@/components/admin/admin-categories'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 
 export const metadata = {
-  title: 'Categories — Admin',
+  title: 'ক্যাটাগরি — অ্যাডমিন',
 }
 
 export default async function AdminCategoriesRoute() {

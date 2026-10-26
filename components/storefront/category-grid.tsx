@@ -8,9 +8,9 @@ export function CategoryGrid({ categories, counts }: { categories: Category[]; c
     <section id="categories" aria-labelledby="categories-title" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-col gap-2">
         <h2 id="categories-title" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Shop by category
+          ক্যাটাগরি অনুযায়ী কিনুন
         </h2>
-        <p className="text-base leading-relaxed text-muted-foreground">Find what you need for the kitchen, living room and bedroom.</p>
+        <p className="text-base leading-relaxed text-muted-foreground">রান্নাঘর, বসার ঘর আর শোবার ঘরের প্রয়োজনীয় সবকিছু খুঁজে নিন।</p>
       </div>
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {categories.map((category) => {
@@ -26,9 +26,7 @@ export function CategoryGrid({ categories, counts }: { categories: Category[]; c
                 </span>
                 <span className="flex flex-col gap-0.5">
                   <span className="text-sm font-semibold">{category.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {count} {count === 1 ? 'product' : 'products'}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{count}টি পণ্য</span>
                 </span>
               </Link>
             </li>

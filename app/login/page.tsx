@@ -5,7 +5,7 @@ import { getSession } from '@/lib/data/auth'
 import { adminRoutes } from '@/lib/routes'
 
 export const metadata: Metadata = {
-  title: 'Staff sign in — Rahman Electronics',
+  title: 'স্টাফ লগইন — রহমান ইলেকট্রনিকস',
   robots: { index: false, follow: false },
 }
 

@@ -3,25 +3,25 @@
  * information before launch. Nothing here is a verified business claim.
  */
 export const shopConfig = {
-  name: 'Rahman Electronics',
-  shortName: 'Rahman',
-  tagline: 'Home appliances for every family',
+  name: 'রহমান ইলেকট্রনিকস',
+  shortName: 'রহমান',
+  tagline: 'প্রতিটি পরিবারের জন্য হোম অ্যাপ্লায়েন্স',
   intro:
-    'A family-run electronics shop serving our village and nearby areas. Come in to see products in person, compare models side by side, and get friendly advice before you buy.',
+    'আমাদের এলাকার একটি পারিবারিক ইলেকট্রনিকসের দোকান। পণ্য নিজে দেখে, পাশাপাশি মডেল মিলিয়ে এবং কেনার আগে পরামর্শ নিয়ে যেতে পারেন।',
   address: {
-    line1: 'Bazar Road, Main Market',
-    line2: '[Upazila], [District]',
-    country: 'Bangladesh',
+    line1: 'বাজার রোড, মূল মার্কেট',
+    line2: '[উপজেলা], [জেলা]',
+    country: 'বাংলাদেশ',
   },
-  phoneDisplay: '+880 1700-000000',
+  phoneDisplay: '+৮৮০ ১৭০০-০০০০০০',
   phoneHref: 'tel:+8801700000000',
   /** Demo WhatsApp number in international format, digits only. */
   whatsappNumber: '8801700000000',
   /** Replace with the shop's real Google Maps share link. */
   mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Rahman+Electronics+Bangladesh',
   hours: [
-    { days: 'Saturday – Thursday', time: '9:00 AM – 9:00 PM' },
-    { days: 'Friday', time: '3:00 PM – 9:00 PM' },
+    { days: 'শনি – বৃহস্পতি', time: 'সকাল ৯টা – রাত ৯টা' },
+    { days: 'শুক্রবার', time: 'বিকাল ৩টা – রাত ৯টা' },
   ],
 } as const
 

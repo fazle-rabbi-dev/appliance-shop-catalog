@@ -66,7 +66,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               className="rounded p-0.5 text-muted-foreground hover:text-foreground"
             >
               <X className="size-4" aria-hidden="true" />
-              <span className="sr-only">Dismiss notification</span>
+              <span className="sr-only">নোটিফিকেশন বন্ধ করুন</span>
             </button>
           </div>
         ))}

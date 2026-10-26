@@ -2,7 +2,7 @@ import { ProductsPage } from '@/components/storefront/products-page'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 
 export const metadata = {
-  title: 'Products — Rahman Electronics',
+  title: 'পণ্য — রহমান ইলেকট্রনিকস',
 }
 
 export default async function ProductsRoute({

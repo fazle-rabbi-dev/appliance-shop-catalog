@@ -73,7 +73,7 @@ lib/
   product-validation.ts   Form + server-side validation, slug generation
   category-validation.ts  Category form + server-side validation
   shop-config.ts          Shop name, address, phone, hours, socials
-  format.ts               Price formatting (Taka, uses "Tk" text, not ৳)
+  format.ts               Price (৳), availability labels, dates, slugify
   utils.ts                cn()
 scripts/seed.ts           CLI entry for `bun run seed`
 public/images/            Product and hero images
@@ -174,7 +174,9 @@ request /admin/*
 - Prefer flex and gap. No `space-*` classes, and don't mix margin with gap.
 - Use the Tailwind spacing scale and avoid arbitrary values.
 - Accessibility: semantic landmarks, labeled form fields, alt text on product images, and `sr-only` for icon-only buttons.
-- Show prices with `formatPrice` from `lib/format.ts`. Don't use the ৳ glyph because the font doesn't include it.
+- UI copy is Bengali; product/category rows in MongoDB stay as entered (currently English). Keep new UI strings Bengali.
+- Show prices with `formatTaka` from `lib/format.ts` (renders `৳`). Noto Sans Bengali is loaded in `app/layout.tsx` and is the fallback font, so the glyph is available.
+- Dates use `formatDate` (Bengali month names, Latin digits).
 - Shop details (name, address, phone, hours) live only in `lib/shop-config.ts`.
 - Escape apostrophes in JSX (`&apos;`).
 - Don't put secrets in client code. Only `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` may be public. The service role key stays on the server.

@@ -21,7 +21,7 @@ export async function signInAction(_previous: LoginState, formData: FormData): P
   try {
     await signIn(username, password)
   } catch (error) {
-    return { error: error instanceof Error ? error.message : 'Could not sign in.' }
+    return { error: error instanceof Error ? error.message : 'লগইন করা যায়নি।' }
   }
 
   redirect(next)

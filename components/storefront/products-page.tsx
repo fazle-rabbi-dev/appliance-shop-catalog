@@ -14,10 +14,10 @@ type SortKey = 'featured' | 'price-asc' | 'price-desc' | 'newest'
 type AvailabilityFilter = 'all' | 'available' | Availability
 
 const sortLabels: Record<SortKey, string> = {
-  featured: 'Recommended',
-  'price-asc': 'Price: low to high',
-  'price-desc': 'Price: high to low',
-  newest: 'Newest first',
+  featured: 'প্রস্তাবিত',
+  'price-asc': 'দাম: কম থেকে বেশি',
+  'price-desc': 'দাম: বেশি থেকে কম',
+  newest: 'নতুন আগে',
 }
 
 export function ProductsPage({
@@ -63,7 +63,7 @@ export function ProductsPage({
     return sorted
   }, [products, activeCategory, availability, q, sort, categoryById])
 
-  const heading = activeCategory?.name ?? 'All products'
+  const heading = activeCategory?.name ?? 'সব পণ্য'
 
   function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -73,11 +73,11 @@ export function ProductsPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted-foreground">
+      <nav aria-label="ব্রেডক্রাম্ব" className="mb-4 text-sm text-muted-foreground">
         <ol className="flex items-center gap-1.5">
           <li>
             <Link href="/" className="hover:text-foreground">
-              Home
+              হোম
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -95,7 +95,7 @@ export function ProductsPage({
       <div className="mb-6 flex flex-col gap-4">
         <form role="search" onSubmit={handleSearch} key={query ?? ''} className="relative md:max-w-md">
           <label htmlFor="catalog-search" className="sr-only">
-            Search in {heading}
+            {heading}-এ খুঁজুন
           </label>
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <input
@@ -103,19 +103,19 @@ export function ProductsPage({
             name="q"
             type="search"
             defaultValue={query ?? ''}
-            placeholder="Search by name, brand or model"
+            placeholder="নাম, ব্র্যান্ড বা মডেল দিয়ে খুঁজুন"
             className="h-11 w-full rounded-lg border border-input bg-card pr-24 pl-9 text-base placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20 sm:text-sm"
           />
           <button
             type="submit"
             className="absolute top-1/2 right-1.5 h-8 -translate-y-1/2 rounded-md bg-foreground px-3 text-sm font-medium text-background hover:opacity-90"
           >
-            Search
+            খুঁজুন
           </button>
         </form>
 
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <ul className="flex w-max gap-2" aria-label="Filter by category">
+          <ul className="flex w-max gap-2" aria-label="ক্যাটাগরি দিয়ে ফিল্টার">
             <li>
               <Link
                 href={productsHref({ q: query })}
@@ -125,7 +125,7 @@ export function ProductsPage({
                   !activeCategory ? 'border-foreground bg-foreground text-background' : 'border-border bg-card hover:bg-muted',
                 )}
               >
-                All
+                সব
               </Link>
             </li>
             {categories.map((c) => {
@@ -150,11 +150,11 @@ export function ProductsPage({
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
           <p className="text-sm text-muted-foreground" aria-live="polite">
-            {results.length} {results.length === 1 ? 'product' : 'products'}
+            {results.length}টি পণ্য
             {q ? (
               <>
                 {' '}
-                for <span className="font-medium text-foreground">&ldquo;{query}&rdquo;</span>
+                <span className="font-medium text-foreground">&ldquo;{query}&rdquo;</span> এর জন্য
               </>
             ) : null}
           </p>
@@ -166,11 +166,11 @@ export function ProductsPage({
                 className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <X className="size-4" aria-hidden="true" />
-                Reset filters
+                ফিল্টার রিসেট
               </button>
             ) : null}
             <label htmlFor="availability" className="sr-only">
-              Filter by availability
+              স্টক অনুযায়ী ফিল্টার
             </label>
             <select
               id="availability"
@@ -178,8 +178,8 @@ export function ProductsPage({
               onChange={(e) => setAvailability(e.target.value as AvailabilityFilter)}
               className="h-9 rounded-lg border border-input bg-card px-2.5 text-sm"
             >
-              <option value="all">Any availability</option>
-              <option value="available">Available now</option>
+              <option value="all">যেকোনো স্টক</option>
+              <option value="available">এখন স্টকে আছে</option>
               {availabilityOptions.map((a) => (
                 <option key={a} value={a}>
                   {availabilityLabel[a]}
@@ -189,7 +189,7 @@ export function ProductsPage({
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="size-4 text-muted-foreground" aria-hidden="true" />
               <label htmlFor="sort" className="sr-only">
-                Sort products
+                পণ্য সাজান
               </label>
               <select
                 id="sort"
@@ -210,21 +210,21 @@ export function ProductsPage({
 
       {categorySlug && !activeCategory ? (
         <EmptyState
-          title="Category not found"
-          body="This category may have been renamed or removed."
+          title="ক্যাটাগরি পাওয়া যায়নি"
+          body="এই ক্যাটাগরির নাম বদলানো বা সরানো হয়েছে।"
           actionHref={productsHref()}
-          actionLabel="See all products"
+          actionLabel="সব পণ্য দেখুন"
         />
       ) : results.length === 0 ? (
         <EmptyState
-          title="No products match"
+          title="কোনো পণ্য মেলেনি"
           body={
             q
-              ? 'Try a different word, check the spelling, or search across all categories.'
-              : 'Nothing is listed here yet. Call the shop to ask about upcoming stock.'
+              ? 'অন্য শব্দ দিয়ে চেষ্টা করুন, বানান মিলিয়ে দেখুন, অথবা সব ক্যাটাগরিতে খুঁজুন।'
+              : 'এখানে এখনো কিছু যোগ করা হয়নি। নতুন স্টকের জন্য দোকানে ফোন করুন।'
           }
           actionHref={productsHref()}
-          actionLabel="Clear search and filters"
+          actionLabel="সার্চ ও ফিল্টার মুছুন"
         />
       ) : (
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

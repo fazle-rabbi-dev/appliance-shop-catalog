@@ -1,16 +1,17 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Noto_Sans_Bengali } from 'next/font/google'
 import { ToastProvider } from '@/components/shared/toast-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
+const bengali = Noto_Sans_Bengali({ subsets: ['bengali'], variable: '--font-bengali', display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'Rahman Electronics — Home Appliances Catalog',
+  title: 'রহমান ইলেকট্রনিকস — হোম অ্যাপ্লায়েন্স ক্যাটালগ',
   description:
-    'Browse refrigerators, rice cookers, televisions, fans, blenders and more. Check prices and availability before visiting our shop.',
+    'ফ্রিজ, রাইস কুকার, টিভি, ফ্যান, ব্লেন্ডারসহ নানা হোম অ্যাপ্লায়েন্স দেখুন। দোকানে আসার আগেই দাম ও স্টক জেনে নিন।',
   icons: {
     icon: [
       { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
@@ -37,7 +38,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} bg-background`} suppressHydrationWarning>
+    <html
+      lang="bn"
+      className={`${inter.variable} ${bengali.variable} bg-background`}
+      suppressHydrationWarning
+    >
       <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <ToastProvider>{children}</ToastProvider>

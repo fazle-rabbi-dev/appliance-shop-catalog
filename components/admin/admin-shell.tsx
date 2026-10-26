@@ -9,10 +9,10 @@ import { shopConfig } from '@/lib/shop-config'
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { href: adminRoutes.dashboard, label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: adminRoutes.products, label: 'Products', icon: Package, exact: false },
-  { href: adminRoutes.categories, label: 'Categories', icon: Tags, exact: false },
-  { href: adminRoutes.newProduct, label: 'Add product', icon: Plus, exact: true },
+  { href: adminRoutes.dashboard, label: 'সারসংক্ষেপ', icon: LayoutDashboard, exact: true },
+  { href: adminRoutes.products, label: 'পণ্য', icon: Package, exact: false },
+  { href: adminRoutes.categories, label: 'ক্যাটাগরি', icon: Tags, exact: false },
+  { href: adminRoutes.newProduct, label: 'পণ্য যোগ করুন', icon: Plus, exact: true },
 ] as const
 
 export function AdminShell({
@@ -32,7 +32,7 @@ export function AdminShell({
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col">
-              <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Shop admin</span>
+              <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">দোকান অ্যাডমিন</span>
               <span className="text-base font-semibold">{shopConfig.name}</span>
             </div>
             <Link
@@ -40,11 +40,11 @@ export function AdminShell({
               className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:hidden"
             >
               <ArrowLeft className="size-4" aria-hidden="true" />
-              View site
+              সাইট দেখুন
             </Link>
           </div>
 
-          <nav aria-label="Admin" className="-mx-1 flex items-center gap-1 overflow-x-auto">
+          <nav aria-label="অ্যাডমিন" className="-mx-1 flex items-center gap-1 overflow-x-auto">
             {NAV.map((item) => {
               const active = item.exact ? pathname === item.href : pathname.startsWith(item.href)
               return (
@@ -67,7 +67,7 @@ export function AdminShell({
               className="ml-2 hidden h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted sm:inline-flex"
             >
               <ArrowLeft className="size-4" aria-hidden="true" />
-              View site
+              সাইট দেখুন
             </Link>
           </nav>
 
@@ -80,7 +80,7 @@ export function AdminShell({
                 className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <LogOut className="size-4" aria-hidden="true" />
-                Sign out
+                সাইন আউট
               </button>
             </form>
           </div>

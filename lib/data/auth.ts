@@ -65,12 +65,12 @@ export async function requireAdmin(returnTo?: string): Promise<SessionUser> {
 
 export async function signIn(username: string, password: string): Promise<SessionUser> {
   if (!AUTH_USERNAME || !AUTH_PASSWORD) {
-    throw new Error('Sign in is not configured. Set ADMIN_USERNAME and ADMIN_PASSWORD.')
+    throw new Error('লগইন কনফিগার করা নেই। ADMIN_USERNAME ও ADMIN_PASSWORD সেট করুন।')
   }
 
   const userMatch = safeEqual(username.trim(), AUTH_USERNAME)
   const passwordMatch = safeEqual(password, AUTH_PASSWORD)
-  if (!userMatch || !passwordMatch) throw new Error('Invalid username or password.')
+  if (!userMatch || !passwordMatch) throw new Error('ইউজারনেম বা পাসওয়ার্ড ভুল।')
 
   const user: SessionUser = { username: AUTH_USERNAME, role: 'admin' }
   const store = await cookies()

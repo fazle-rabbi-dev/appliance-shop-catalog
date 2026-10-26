@@ -2,7 +2,7 @@ import { ProductForm } from '@/components/admin/product-form'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 
 export const metadata = {
-  title: 'Add product — Admin',
+  title: 'পণ্য যোগ — অ্যাডমিন',
 }
 
 export default async function NewProductRoute() {

@@ -19,8 +19,8 @@ export function LoginForm({ next }: { next: string }) {
         <span className="flex size-11 items-center justify-center rounded-xl bg-foreground text-background">
           <LockKeyhole className="size-5" aria-hidden="true" />
         </span>
-        <h1 className="text-2xl font-semibold tracking-tight">Staff sign in</h1>
-        <p className="text-sm text-muted-foreground">Manage the {shopConfig.name} catalog.</p>
+        <h1 className="text-2xl font-semibold tracking-tight">স্টাফ লগইন</h1>
+        <p className="text-sm text-muted-foreground">{shopConfig.name}-এর ক্যাটালগ পরিচালনা করুন।</p>
       </div>
 
       <form action={formAction} className="flex w-full max-w-sm flex-col gap-4 rounded-xl border border-border bg-card p-5 sm:p-6">
@@ -28,7 +28,7 @@ export function LoginForm({ next }: { next: string }) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="username" className="text-sm font-medium">
-            Username
+            ইউজারনেম
           </label>
           <input
             id="username"
@@ -45,7 +45,7 @@ export function LoginForm({ next }: { next: string }) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="password" className="text-sm font-medium">
-            Password
+            পাসওয়ার্ড
           </label>
           <input
             id="password"
@@ -71,12 +71,12 @@ export function LoginForm({ next }: { next: string }) {
           className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
         >
           {pending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
-          {pending ? 'Signing in…' : 'Sign in'}
+          {pending ? 'প্রবেশ করছে…' : 'লগইন করুন'}
         </button>
       </form>
 
       <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-        Back to storefront
+        স্টোরফ্রন্টে ফিরে যান
       </Link>
     </div>
   )

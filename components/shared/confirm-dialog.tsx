@@ -49,10 +49,10 @@ export function ConfirmDialog({ open, title, description, confirmLabel, pending,
       </div>
       <div className="flex flex-col-reverse gap-2 border-t border-border bg-muted/50 px-6 py-4 sm:flex-row sm:justify-end">
         <Button variant="outline" onClick={onCancel} disabled={pending} autoFocus>
-          Cancel
+          বাতিল
         </Button>
         <Button variant="destructive" onClick={onConfirm} disabled={pending}>
-          {pending ? 'Deleting…' : confirmLabel}
+          {pending ? 'মুছে ফেলা হচ্ছে…' : confirmLabel}
         </Button>
       </div>
     </dialog>

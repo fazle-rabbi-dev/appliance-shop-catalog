@@ -13,13 +13,13 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
       <ProductImage
         key={images[safeIndex]}
         src={images[safeIndex]}
-        alt={`${name}, image ${safeIndex + 1} of ${images.length}`}
+        alt={`${name}, ছবি ${safeIndex + 1}/${images.length}`}
         className="aspect-square rounded-2xl border border-border sm:aspect-[4/3]"
         imgClassName="p-6 sm:p-10"
         eager
       />
       {images.length > 1 ? (
-        <ul className="flex gap-3" aria-label="Product images">
+        <ul className="flex gap-3" aria-label="পণ্যের ছবি">
           {images.map((src, index) => (
             <li key={`${src}-${index}`}>
               <button
@@ -32,7 +32,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
                 )}
               >
                 <ProductImage src={src} alt="" className="size-20" imgClassName="p-1.5" />
-                <span className="sr-only">Show image {index + 1}</span>
+                <span className="sr-only">ছবি {index + 1} দেখান</span>
               </button>
             </li>
           ))}

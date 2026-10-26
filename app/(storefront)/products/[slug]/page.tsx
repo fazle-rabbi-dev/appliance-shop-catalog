@@ -10,9 +10,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const product = await catalogRepository.getPublishedProductBySlug(slug)
-  if (!product) return { title: 'Product not found — Rahman Electronics' }
+  if (!product) return { title: 'পণ্য পাওয়া যায়নি — রহমান ইলেকট্রনিকস' }
   return {
-    title: `${product.name} — Rahman Electronics`,
+    title: `${product.name} — রহমান ইলেকট্রনিকস`,
     description: product.description.slice(0, 160),
   }
 }

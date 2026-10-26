@@ -32,7 +32,7 @@ export function AdminCategories({
     startTransition(async () => {
       const result = await deleteCategoryAction(target.id)
       notify(
-        result.ok ? `Deleted “${target.name}”.` : result.error,
+        result.ok ? `“${target.name}” মুছে ফেলা হয়েছে।` : result.error,
         result.ok ? 'success' : 'error',
       )
       if (result.ok) setPendingDelete(null)
@@ -43,21 +43,21 @@ export function AdminCategories({
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold sm:text-3xl">Categories</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">ক্যাটাগরি</h1>
           <p className="text-sm text-muted-foreground">
-            {categories.length} total · shown in the storefront menu and filters.
+            মোট {categories.length}টি · ওয়েবসাইটের মেনু ও ফিল্টারে দেখা যায়।
           </p>
         </div>
         <Link href={adminRoutes.newCategory} className={cn(buttonVariants(), 'h-11 gap-2 px-4')}>
           <Plus aria-hidden="true" />
-          Add category
+          ক্যাটাগরি যোগ করুন
         </Link>
       </div>
 
       {categories.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card p-10 text-center">
-          <p className="font-medium">No categories yet.</p>
-          <p className="text-sm text-muted-foreground">Add one before creating products.</p>
+          <p className="font-medium">এখনো কোনো ক্যাটাগরি নেই।</p>
+          <p className="text-sm text-muted-foreground">পণ্য যোগ করার আগে একটি ক্যাটাগরি তৈরি করুন।</p>
         </div>
       ) : (
         <ul className="flex flex-col overflow-hidden rounded-xl border border-border bg-card" aria-busy={isPending}>
@@ -81,7 +81,7 @@ export function AdminCategories({
                 </div>
 
                 <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground tabular-nums">
-                  {count} {count === 1 ? 'product' : 'products'}
+                  {count}টি পণ্য
                 </span>
 
                 <div className="ml-auto flex items-center gap-1 sm:ml-0">
@@ -90,19 +90,19 @@ export function AdminCategories({
                     className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                   >
                     <Pencil className="size-4" aria-hidden="true" />
-                    <span className="sr-only">Edit {category.name}</span>
+                    <span className="sr-only">{category.name} সম্পাদনা করুন</span>
                   </Link>
                   <button
                     type="button"
                     onClick={() => setPendingDelete(category)}
                     disabled={count > 0}
-                    title={count > 0 ? 'Move or delete this category’s products first' : undefined}
+                    title={count > 0 ? 'আগে এই ক্যাটাগরির পণ্য সরান বা মুছুন' : undefined}
                     className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
                     <span className="sr-only">
-                      Delete {category.name}
-                      {count > 0 ? ' (blocked: category still has products)' : ''}
+                      {category.name} মুছুন
+                      {count > 0 ? ' (মোছা যাবে না: ক্যাটাগরিতে এখনো পণ্য আছে)' : ''}
                     </span>
                   </button>
                 </div>
@@ -114,15 +114,15 @@ export function AdminCategories({
 
       <ConfirmDialog
         open={pendingDelete !== null}
-        title="Delete this category?"
+        title="এই ক্যাটাগরিটি মুছবেন?"
         description={
           pendingDelete
             ? pendingCount > 0
-              ? `“${pendingDelete.name}” still has ${pendingCount} product${pendingCount === 1 ? '' : 's'}. Move or delete them first.`
-              : `“${pendingDelete.name}” will be removed from the storefront. This cannot be undone.`
+              ? `“${pendingDelete.name}” এ এখনো ${pendingCount}টি পণ্য আছে। আগে সেগুলো সরান বা মুছুন।`
+              : `“${pendingDelete.name}” ওয়েবসাইট থেকে মুছে যাবে। এটি ফিরিয়ে আনা যাবে না।`
             : ''
         }
-        confirmLabel="Delete category"
+        confirmLabel="ক্যাটাগরি মুছুন"
         pending={isPending}
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}

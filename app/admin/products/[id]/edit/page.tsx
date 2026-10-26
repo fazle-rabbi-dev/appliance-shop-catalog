@@ -3,7 +3,7 @@ import { ProductForm } from '@/components/admin/product-form'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 
 export const metadata = {
-  title: 'Edit product — Admin',
+  title: 'পণ্য সম্পাদনা — অ্যাডমিন',
 }
 
 export default async function EditProductRoute({ params }: { params: Promise<{ id: string }> }) {

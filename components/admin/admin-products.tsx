@@ -54,21 +54,21 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold sm:text-3xl">Products</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">পণ্য</h1>
           <p className="text-sm text-muted-foreground">
-            {products.length} total · changes appear on the public site immediately.
+            মোট {products.length}টি · পরিবর্তন সাথে সাথে ওয়েবসাইটে দেখা যাবে।
           </p>
         </div>
         <Link href={adminRoutes.newProduct} className={cn(buttonVariants(), 'h-11 gap-2 px-4')}>
           <Plus aria-hidden="true" />
-          Add product
+          পণ্য যোগ করুন
         </Link>
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative flex-1 sm:min-w-64">
           <label htmlFor="admin-search" className="sr-only">
-            Search products
+            পণ্য খুঁজুন
           </label>
           <Search
             className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -79,13 +79,13 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name, brand, model…"
+            placeholder="নাম, ব্র্যান্ড, মডেল খুঁজুন…"
             className="h-11 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-base sm:text-sm"
           />
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex">
           <label htmlFor="admin-status" className="sr-only">
-            Filter by status
+            স্ট্যাটাস অনুযায়ী ফিল্টার
           </label>
           <select
             id="admin-status"
@@ -93,14 +93,14 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
             onChange={(e) => setStatus(e.target.value as StatusFilter)}
             className="h-11 rounded-lg border border-input bg-card px-2.5 text-sm"
           >
-            <option value="all">All statuses</option>
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
-            <option value="featured">Featured</option>
-            <option value="out_of_stock">Out of stock</option>
+            <option value="all">সব স্ট্যাটাস</option>
+            <option value="published">প্রকাশিত</option>
+            <option value="draft">খসড়া</option>
+            <option value="featured">নির্বাচিত</option>
+            <option value="out_of_stock">স্টক নেই</option>
           </select>
           <label htmlFor="admin-category" className="sr-only">
-            Filter by category
+            ক্যাটাগরি অনুযায়ী ফিল্টার
           </label>
           <select
             id="admin-category"
@@ -108,7 +108,7 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
             onChange={(e) => setCategoryId(e.target.value)}
             className="h-11 rounded-lg border border-input bg-card px-2.5 text-sm"
           >
-            <option value="all">All categories</option>
+            <option value="all">সব ক্যাটাগরি</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -126,19 +126,19 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
             }}
           >
             <X aria-hidden="true" />
-            Reset
+            রিসেট
           </Button>
         ) : null}
       </div>
 
       <p className="sr-only" aria-live="polite">
-        {filtered.length} products shown
+        {filtered.length}টি পণ্য দেখানো হচ্ছে
       </p>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card p-10 text-center">
-          <p className="font-medium">No products match these filters.</p>
-          <p className="text-sm text-muted-foreground">Try a different search or reset the filters.</p>
+          <p className="font-medium">এই ফিল্টারে কোনো পণ্য মেলেনি।</p>
+          <p className="text-sm text-muted-foreground">অন্য কিছু খুঁজুন বা ফিল্টার রিসেট করুন।</p>
         </div>
       ) : (
         <ul className="flex flex-col overflow-hidden rounded-xl border border-border bg-card" aria-busy={isPending}>
@@ -147,11 +147,11 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
             className="hidden grid-cols-[3.5rem_minmax(0,1fr)_8rem_9rem_7rem_7.5rem] items-center gap-4 border-b border-border bg-muted/60 px-4 py-2.5 text-xs font-medium tracking-wider text-muted-foreground uppercase lg:grid"
           >
             <span />
-            <span>Product</span>
-            <span className="text-right">Price</span>
-            <span>Availability</span>
-            <span>Status</span>
-            <span className="text-right">Actions</span>
+            <span>পণ্য</span>
+            <span className="text-right">দাম</span>
+            <span>স্টক</span>
+            <span>স্ট্যাটাস</span>
+            <span className="text-right">কাজ</span>
           </li>
           {filtered.map((product) => (
             <li
@@ -162,7 +162,7 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="truncate font-medium">{product.name}</span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {categoryById.get(product.categoryId)?.name ?? 'Uncategorised'} · {product.brand}
+                  {categoryById.get(product.categoryId)?.name ?? 'ক্যাটাগরি নেই'} · {product.brand}
                   {product.model ? ` ${product.model}` : ''}
                 </span>
                 <span className="text-sm font-semibold tabular-nums lg:hidden">{formatTaka(product.price)}</span>
@@ -174,7 +174,7 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
 
               <div className="col-span-2 flex flex-wrap items-center gap-2 lg:col-span-1">
                 <label htmlFor={`avail-${product.id}`} className="sr-only">
-                  Availability for {product.name}
+                  {product.name} এর স্টক
                 </label>
                 <select
                   id={`avail-${product.id}`}
@@ -183,7 +183,7 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
                   onChange={(e) =>
                     run(
                       () => patchProductAction(product.id, { availability: e.target.value as Availability }),
-                      `${product.name} marked ${availabilityLabel[e.target.value as Availability].toLowerCase()}.`,
+                      `${product.name} — ${availabilityLabel[e.target.value as Availability]}।`,
                     )
                   }
                   className={cn(
@@ -206,12 +206,12 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
                   type="button"
                   role="switch"
                   aria-checked={product.published}
-                  aria-label={`Published: ${product.name}`}
+                  aria-label={`প্রকাশিত: ${product.name}`}
                   disabled={isPending}
                   onClick={() =>
                     run(
                       () => patchProductAction(product.id, { published: !product.published }),
-                      product.published ? `${product.name} moved to drafts.` : `${product.name} is now live.`,
+                      product.published ? `${product.name} খসড়ায় সরানো হয়েছে।` : `${product.name} এখন প্রকাশিত।`,
                     )
                   }
                   className={cn(
@@ -225,7 +225,7 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
                     aria-hidden="true"
                     className={cn('size-2 rounded-full', product.published ? 'bg-primary' : 'bg-muted-foreground/50')}
                   />
-                  {product.published ? 'Published' : 'Draft'}
+                  {product.published ? 'প্রকাশিত' : 'খসড়া'}
                 </button>
               </div>
 
@@ -237,14 +237,14 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
                   onClick={() =>
                     run(
                       () => patchProductAction(product.id, { featured: !product.featured }),
-                      product.featured ? `${product.name} removed from featured.` : `${product.name} is now featured.`,
+                      product.featured ? `${product.name} নির্বাচিত তালিকা থেকে সরানো হয়েছে।` : `${product.name} এখন নির্বাচিত।`,
                     )
                   }
                   className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   <Star className={cn('size-4', product.featured && 'fill-warning text-warning')} aria-hidden="true" />
                   <span className="sr-only">
-                    {product.featured ? 'Remove from featured' : 'Mark as featured'}: {product.name}
+                    {product.featured ? 'নির্বাচিত থেকে সরান' : 'নির্বাচিত হিসেবে চিহ্নিত করুন'}: {product.name}
                   </span>
                 </button>
                 <Link
@@ -252,7 +252,7 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
                   className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   <Pencil className="size-4" aria-hidden="true" />
-                  <span className="sr-only">Edit {product.name}</span>
+                  <span className="sr-only">{product.name} সম্পাদনা করুন</span>
                 </Link>
                 <button
                   type="button"
@@ -260,7 +260,7 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
                   className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="size-4" aria-hidden="true" />
-                  <span className="sr-only">Delete {product.name}</span>
+                  <span className="sr-only">{product.name} মুছুন</span>
                 </button>
               </div>
             </li>
@@ -270,17 +270,17 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
 
       <ConfirmDialog
         open={pendingDelete !== null}
-        title="Delete this product?"
+        title="এই পণ্যটি মুছবেন?"
         description={
           pendingDelete
-            ? `“${pendingDelete.name}” will be removed from the catalog and the public site. This cannot be undone.`
+            ? `“${pendingDelete.name}” ক্যাটালগ ও ওয়েবসাইট থেকে মুছে যাবে। এটি ফিরিয়ে আনা যাবে না।`
             : ''
         }
-        confirmLabel="Delete product"
+        confirmLabel="পণ্য মুছুন"
         pending={isPending}
         onConfirm={() => {
           if (!pendingDelete) return
-          run(() => deleteProductAction(pendingDelete.id), `Deleted “${pendingDelete.name}”.`)
+          run(() => deleteProductAction(pendingDelete.id), `“${pendingDelete.name}” মুছে ফেলা হয়েছে।`)
         }}
         onCancel={() => setPendingDelete(null)}
       />

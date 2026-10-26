@@ -89,7 +89,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
     const found = collectErrors(values)
     setErrors(found)
     if (hasErrors(found)) {
-      notify('Please fix the highlighted fields.', 'error')
+      notify('চিহ্নিত ঘরগুলো ঠিক করুন।', 'error')
       const firstInvalid = event.currentTarget.querySelector<HTMLElement>('[aria-invalid="true"]')
       firstInvalid?.focus()
       return
@@ -104,7 +104,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
       return
     }
 
-    notify(product ? `Saved changes to “${input.name}”.` : `Added “${input.name}”.`)
+    notify(product ? `“${input.name}” এর পরিবর্তন সংরক্ষণ হয়েছে।` : `“${input.name}” যোগ করা হয়েছে।`)
     router.push(adminRoutes.products)
     router.refresh()
   }
@@ -119,21 +119,21 @@ export function ProductForm({ product, categories }: { product?: Product; catego
           className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          Back to products
+          পণ্যে ফিরে যান
         </Link>
         <h1 className="text-2xl font-semibold text-balance sm:text-3xl">
-          {isEdit ? `Edit ${product?.name}` : 'Add a product'}
+          {isEdit ? `${product?.name} সম্পাদনা` : 'পণ্য যোগ করুন'}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Fields marked <span aria-hidden="true">*</span>
-          <span className="sr-only">with an asterisk</span> are required.
+          <span aria-hidden="true">*</span>
+          <span className="sr-only">তারকা চিহ্নিত</span> ঘরগুলো অবশ্যই পূরণ করতে হবে।
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="flex flex-col gap-6">
-          <Fieldset legend="Basic details">
-            <Field label="Product name" required id={fieldId('name')} error={errors.name}>
+          <Fieldset legend="মূল তথ্য">
+            <Field label="পণ্যের নাম" required id={fieldId('name')} error={errors.name}>
               <input
                 id={fieldId('name')}
                 value={values.name}
@@ -146,11 +146,11 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             </Field>
 
             <Field
-              label="URL slug"
+              label="URL স্লাগ"
               required
               id={fieldId('slug')}
               error={errors.slug}
-              hint={`Page address: ${productHref(values.slug || 'your-product')}`}
+              hint={`পেজের ঠিকানা: ${productHref(values.slug || 'আপনার-পণ্য')}`}
             >
               <input
                 id={fieldId('slug')}
@@ -168,7 +168,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             </Field>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Category" required id={fieldId('categoryId')} error={errors.categoryId}>
+              <Field label="ক্যাটাগরি" required id={fieldId('categoryId')} error={errors.categoryId}>
                 <select
                   id={fieldId('categoryId')}
                   value={values.categoryId}
@@ -177,7 +177,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                   aria-describedby={errorId('categoryId')}
                   className={inputClass}
                 >
-                  <option value="">Choose a category</option>
+                  <option value="">ক্যাটাগরি বেছে নিন</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -185,13 +185,13 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                   ))}
                 </select>
               </Field>
-              <Field label="Price (BDT)" required id={fieldId('price')} error={errors.price}>
+              <Field label="দাম (টাকা)" required id={fieldId('price')} error={errors.price}>
                 <div className="relative">
                   <span
                     aria-hidden="true"
                     className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
                   >
-                    Tk
+                    ৳
                   </span>
                   <input
                     id={fieldId('price')}
@@ -207,7 +207,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                   />
                 </div>
               </Field>
-              <Field label="Brand" required id={fieldId('brand')} error={errors.brand}>
+              <Field label="ব্র্যান্ড" required id={fieldId('brand')} error={errors.brand}>
                 <input
                   id={fieldId('brand')}
                   value={values.brand}
@@ -217,7 +217,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                   className={inputClass}
                 />
               </Field>
-              <Field label="Model" id={fieldId('model')}>
+              <Field label="মডেল" id={fieldId('model')}>
                 <input
                   id={fieldId('model')}
                   value={values.model}
@@ -227,7 +227,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               </Field>
             </div>
 
-            <Field label="Description" required id={fieldId('description')} error={errors.description}>
+            <Field label="বিবরণ" required id={fieldId('description')} error={errors.description}>
               <textarea
                 id={fieldId('description')}
                 rows={5}
@@ -240,9 +240,9 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             </Field>
           </Fieldset>
 
-          <Fieldset legend="Images" required error={errors.images} errorId={`${fieldId('images')}-error`}>
+          <Fieldset legend="ছবি" required error={errors.images} errorId={`${fieldId('images')}-error`}>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              The first image is used as the main photo. Use full https:// links or paths like /images/fan.png.
+              প্রথম ছবিটি মূল ছবি হিসেবে দেখানো হবে। পূর্ণ https:// লিংক অথবা /images/fan.png এর মতো পাথ দিন।
             </p>
             <ol className="flex flex-col gap-3">
               {values.images.map((image, index) => {
@@ -252,13 +252,13 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                   <li key={index} className="flex gap-3">
                     <ProductImage
                       src={image.url.trim() && isValidImageUrl(image.url) ? image.url.trim() : undefined}
-                      alt={`Preview of image ${index + 1}`}
+                      alt={`ছবি ${index + 1} এর প্রিভিউ`}
                       className="size-16 shrink-0 rounded-lg border border-border"
                     />
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
                       <label htmlFor={rowId} className="text-xs font-medium text-muted-foreground">
-                        Image {index + 1}
-                        {index === 0 ? ' (main)' : ''}
+                        ছবি {index + 1}
+                        {index === 0 ? ' (মূল)' : ''}
                       </label>
                       <div className="flex gap-2">
                         <input
@@ -283,7 +283,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                           className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
                         >
                           <Trash2 className="size-4" aria-hidden="true" />
-                          <span className="sr-only">Remove image {index + 1}</span>
+                          <span className="sr-only">ছবি {index + 1} সরান</span>
                         </button>
                       </div>
                       {rowError ? (
@@ -304,21 +304,21 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               onClick={() => update({ images: [...values.images, { url: '', publicId: null }] })}
             >
               <Plus aria-hidden="true" />
-              Add image URL
+              ছবির URL যোগ করুন
             </Button>
           </Fieldset>
 
-          <Fieldset legend="Specifications" error={errors.specs} errorId={`${fieldId('specs')}-error`}>
+          <Fieldset legend="স্পেসিফিকেশন" error={errors.specs} errorId={`${fieldId('specs')}-error`}>
             <ul className="flex flex-col gap-2">
               {values.specs.map((spec, index) => (
                 <li key={index} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_2.75rem] gap-2">
                   <label htmlFor={`${fieldId('spec-label')}-${index}`} className="sr-only">
-                    Specification {index + 1} label
+                    স্পেসিফিকেশন {index + 1} এর নাম
                   </label>
                   <input
                     id={`${fieldId('spec-label')}-${index}`}
                     value={spec.label}
-                    placeholder="e.g. Capacity"
+                    placeholder="যেমন: ধারণক্ষমতা"
                     onChange={(e) => {
                       const specs = values.specs.map((s, i) => (i === index ? { ...s, label: e.target.value } : s))
                       update({ specs })
@@ -326,12 +326,12 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                     className={inputClass}
                   />
                   <label htmlFor={`${fieldId('spec-value')}-${index}`} className="sr-only">
-                    Specification {index + 1} value
+                    স্পেসিফিকেশন {index + 1} এর মান
                   </label>
                   <input
                     id={`${fieldId('spec-value')}-${index}`}
                     value={spec.value}
-                    placeholder="e.g. 250 litres"
+                    placeholder="যেমন: 250 লিটার"
                     onChange={(e) => {
                       const specs = values.specs.map((s, i) => (i === index ? { ...s, value: e.target.value } : s))
                       update({ specs })
@@ -351,7 +351,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                     className="inline-flex size-11 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
-                    <span className="sr-only">Remove specification {index + 1}</span>
+                    <span className="sr-only">স্পেসিফিকেশন {index + 1} সরান</span>
                   </button>
                 </li>
               ))}
@@ -363,14 +363,14 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               onClick={() => update({ specs: [...values.specs, { label: '', value: '' }] })}
             >
               <Plus aria-hidden="true" />
-              Add specification
+              স্পেসিফিকেশন যোগ করুন
             </Button>
           </Fieldset>
         </div>
 
         <aside className="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
-          <Fieldset legend="Visibility & stock">
-            <Field label="Availability" id={fieldId('availability')}>
+          <Fieldset legend="দৃশ্যমানতা ও স্টক">
+            <Field label="স্টক" id={fieldId('availability')}>
               <select
                 id={fieldId('availability')}
                 value={values.availability}
@@ -385,14 +385,14 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               </select>
             </Field>
             <Toggle
-              label="Published"
-              description="Visible on the public website."
+              label="প্রকাশিত"
+              description="ওয়েবসাইটে সবাই দেখতে পাবে।"
               checked={values.published}
               onChange={(published) => update({ published })}
             />
             <Toggle
-              label="Featured"
-              description="Shown in the homepage highlights."
+              label="নির্বাচিত"
+              description="হোমপেজের নির্বাচিত অংশে দেখানো হবে।"
               checked={values.featured}
               onChange={(featured) => update({ featured })}
             />
@@ -400,10 +400,10 @@ export function ProductForm({ product, categories }: { product?: Product; catego
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row lg:flex-col">
             <Link href={adminRoutes.products} className={cn(buttonVariants({ variant: 'outline' }), 'h-11 px-4 sm:flex-1 lg:flex-none')}>
-              Cancel
+              বাতিল
             </Link>
             <Button type="submit" disabled={saving} className="h-11 px-4 sm:flex-1 lg:flex-none">
-              {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Add product'}
+              {saving ? 'সংরক্ষণ হচ্ছে…' : isEdit ? 'পরিবর্তন সংরক্ষণ' : 'পণ্য যোগ করুন'}
             </Button>
           </div>
         </aside>
@@ -466,7 +466,7 @@ function Field({
             <span aria-hidden="true" className="text-destructive">
               {' *'}
             </span>
-            <span className="sr-only"> (required)</span>
+            <span className="sr-only"> (আবশ্যক)</span>
           </>
         ) : null}
       </label>

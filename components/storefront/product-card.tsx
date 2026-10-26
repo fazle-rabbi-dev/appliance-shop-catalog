@@ -13,7 +13,7 @@ export function ProductCard({ product, category }: { product: Product; category?
     >
       <ProductImage src={product.images[0]?.url} alt={product.name} className="aspect-[4/3] border-b border-border" imgClassName="p-6" />
       <div className="flex flex-1 flex-col gap-1.5 p-4">
-        <span className="text-xs font-medium text-muted-foreground">{category?.name ?? 'Uncategorised'}</span>
+        <span className="text-xs font-medium text-muted-foreground">{category?.name ?? 'ক্যাটাগরি নেই'}</span>
         <span className="font-medium group-hover:text-primary">{product.name}</span>
         <span className="text-xs text-muted-foreground">
           {product.brand}

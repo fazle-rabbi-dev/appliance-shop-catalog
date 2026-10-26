@@ -12,7 +12,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   useEffect(() => setMounted(true), [])
 
   const isDark = mounted && resolvedTheme === 'dark'
-  const label = isDark ? 'Switch to light theme' : 'Switch to dark theme'
+  const label = isDark ? 'হালকা থিমে যান' : 'গাঢ় থিমে যান'
 
   return (
     <button

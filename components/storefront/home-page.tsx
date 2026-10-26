@@ -26,12 +26,12 @@ export function HomePage({ categories, products }: { categories: Category[]; pro
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-2">
             <h2 id="featured-title" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Popular in the shop
+              দোকানে জনপ্রিয়
             </h2>
-            <p className="text-base leading-relaxed text-muted-foreground">Models our customers ask about most.</p>
+            <p className="text-base leading-relaxed text-muted-foreground">যেসব মডেল ক্রেতারা সবচেয়ে বেশি খোঁজেন।</p>
           </div>
           <Link href={productsHref()} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
-            View all products
+            সব পণ্য দেখুন
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
@@ -45,9 +45,9 @@ export function HomePage({ categories, products }: { categories: Category[]; pro
           </ul>
         ) : (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            No featured products right now.{' '}
+            এখন কোনো নির্বাচিত পণ্য নেই।{' '}
             <Link href={productsHref()} className="font-medium text-primary hover:underline">
-              Browse the full catalog
+              পুরো ক্যাটালগ দেখুন
             </Link>
             .
           </p>

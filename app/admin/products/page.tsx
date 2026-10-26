@@ -2,7 +2,7 @@ import { AdminProducts } from '@/components/admin/admin-products'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 
 export const metadata = {
-  title: 'Products — Admin',
+  title: 'পণ্য — অ্যাডমিন',
 }
 
 export default async function AdminProductsRoute() {

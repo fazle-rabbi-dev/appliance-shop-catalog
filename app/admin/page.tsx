@@ -18,10 +18,10 @@ export default async function AdminDashboardRoute() {
   const categoryById = new Map(categories.map((category) => [category.id, category]))
 
   const stats = [
-    { label: 'Total products', value: products.length },
-    { label: 'Published', value: products.filter((p) => p.published).length },
-    { label: 'Out of stock', value: products.filter((p) => p.availability === 'out_of_stock').length },
-    { label: 'Categories', value: categories.length },
+    { label: 'মোট পণ্য', value: products.length },
+    { label: 'প্রকাশিত', value: products.filter((p) => p.published).length },
+    { label: 'স্টক নেই', value: products.filter((p) => p.availability === 'out_of_stock').length },
+    { label: 'ক্যাটাগরি', value: categories.length },
   ]
 
   const recent = [...products].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5)
@@ -30,12 +30,12 @@ export default async function AdminDashboardRoute() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold text-balance sm:text-3xl">Overview</h1>
-          <p className="text-sm text-muted-foreground">A quick look at what customers can see right now.</p>
+          <h1 className="text-2xl font-semibold text-balance sm:text-3xl">সারসংক্ষেপ</h1>
+          <p className="text-sm text-muted-foreground">ক্রেতারা এখন কী দেখছেন তার এক নজরে।</p>
         </div>
         <Link href={adminRoutes.newProduct} className={cn(buttonVariants(), 'h-11 gap-2 px-4')}>
           <Plus aria-hidden="true" />
-          Add product
+          পণ্য যোগ করুন
         </Link>
       </div>
 
@@ -51,15 +51,15 @@ export default async function AdminDashboardRoute() {
       <section aria-labelledby="recent-heading" className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-4">
           <h2 id="recent-heading" className="text-lg font-semibold">
-            Recently added
+            সাম্প্রতিক যোগ করা
           </h2>
           <Link href={adminRoutes.products} className="text-sm font-medium text-primary hover:underline">
-            Manage all products
+            সব পণ্য পরিচালনা
           </Link>
         </div>
         {recent.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
-            No products yet. Add your first product to get started.
+            এখনো কোনো পণ্য নেই। শুরু করতে প্রথম পণ্যটি যোগ করুন।
           </p>
         ) : (
           <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
@@ -73,7 +73,7 @@ export default async function AdminDashboardRoute() {
                   <div className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate font-medium">{product.name}</span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {categoryById.get(product.categoryId)?.name ?? 'Uncategorised'} · Added {formatDate(product.createdAt)}
+                      {categoryById.get(product.categoryId)?.name ?? 'ক্যাটাগরি নেই'} · যোগ করা হয়েছে {formatDate(product.createdAt)}
                     </span>
                   </div>
                   <div className="hidden flex-col items-end gap-1 sm:flex">
@@ -82,7 +82,7 @@ export default async function AdminDashboardRoute() {
                   </div>
                   {!product.published ? (
                     <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                      Draft
+                      খসড়া
                     </span>
                   ) : null}
                 </Link>
@@ -96,10 +96,10 @@ export default async function AdminDashboardRoute() {
         <div className="flex flex-col gap-1">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <RotateCcw className="size-4 text-muted-foreground" aria-hidden="true" />
-            Restore demo data
+            ডেমো ডেটা ফিরিয়ে আনুন
           </h2>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Replaces the current catalog with the original sample data.
+            বর্তমান ক্যাটালগ মুছে আগের নমুনা ডেটা বসিয়ে দেবে।
           </p>
         </div>
         <ResetDemoData />

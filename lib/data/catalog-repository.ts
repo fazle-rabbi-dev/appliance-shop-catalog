@@ -86,7 +86,7 @@ async function assertUniqueCategorySlug(slug: string, ignoreId?: string) {
 
   await connectToDatabase()
   if (await CategoryModel.exists(query)) {
-    throw new Error('Another category already uses this slug.')
+    throw new Error('এই স্লাগে আরেকটি ক্যাটাগরি আছে।')
   }
 }
 
@@ -96,7 +96,7 @@ async function assertUniqueSlug(slug: string, ignoreId?: string) {
 
   await connectToDatabase()
   if (await ProductModel.exists(query)) {
-    throw new Error('Another product already uses this URL slug.')
+    throw new Error('এই URL স্লাগে আরেকটি পণ্য আছে।')
   }
 }
 
@@ -125,7 +125,7 @@ const mongoCatalogRepository: CatalogRepository = {
       const created = await CategoryModel.create(input)
       return toCategory(created.toObject<LeanCategory>())
     } catch (error) {
-      if (isDuplicateKey(error)) throw new Error('Another category already uses this slug.')
+      if (isDuplicateKey(error)) throw new Error('এই স্লাগে আরেকটি ক্যাটাগরি আছে।')
       throw error
     }
   },
@@ -140,10 +140,10 @@ const mongoCatalogRepository: CatalogRepository = {
         { returnDocument: 'after', runValidators: true },
       ).lean<LeanCategory | null>()
 
-      if (!updated) throw new Error('This category no longer exists.')
+      if (!updated) throw new Error('এই ক্যাটাগরিটি আর নেই।')
       return toCategory(updated)
     } catch (error) {
-      if (isDuplicateKey(error)) throw new Error('Another category already uses this slug.')
+      if (isDuplicateKey(error)) throw new Error('এই স্লাগে আরেকটি ক্যাটাগরি আছে।')
       throw error
     }
   },
@@ -153,12 +153,12 @@ const mongoCatalogRepository: CatalogRepository = {
     const inUse = await ProductModel.countDocuments({ categoryId: id })
     if (inUse > 0) {
       throw new Error(
-        `This category still has ${inUse} product${inUse === 1 ? '' : 's'}. Move or delete them first.`,
+        `এই ক্যাটাগরিতে এখনো ${inUse}টি পণ্য আছে। আগে সেগুলো সরান বা মুছুন।`,
       )
     }
 
     const deleted = await CategoryModel.findByIdAndDelete(id).lean<LeanCategory | null>()
-    if (!deleted) throw new Error('This category no longer exists.')
+    if (!deleted) throw new Error('এই ক্যাটাগরিটি আর নেই।')
   },
 
   async listProducts() {
@@ -196,7 +196,7 @@ const mongoCatalogRepository: CatalogRepository = {
       })
       return toProduct(created.toObject<LeanProduct>())
     } catch (error) {
-      if (isDuplicateKey(error)) throw new Error('Another product already uses this URL slug.')
+      if (isDuplicateKey(error)) throw new Error('এই URL স্লাগে আরেকটি পণ্য আছে।')
       throw error
     }
   },
@@ -218,10 +218,10 @@ const mongoCatalogRepository: CatalogRepository = {
         { returnDocument: 'after', runValidators: true },
       ).lean<LeanProduct | null>()
 
-      if (!updated) throw new Error('This product no longer exists.')
+      if (!updated) throw new Error('এই পণ্যটি আর নেই।')
       return toProduct(updated)
     } catch (error) {
-      if (isDuplicateKey(error)) throw new Error('Another product already uses this URL slug.')
+      if (isDuplicateKey(error)) throw new Error('এই URL স্লাগে আরেকটি পণ্য আছে।')
       throw error
     }
   },
@@ -234,14 +234,14 @@ const mongoCatalogRepository: CatalogRepository = {
       { returnDocument: 'after', runValidators: true },
     ).lean<LeanProduct | null>()
 
-    if (!updated) throw new Error('This product no longer exists.')
+    if (!updated) throw new Error('এই পণ্যটি আর নেই।')
     return toProduct(updated)
   },
 
   async deleteProduct(id) {
     await connectToDatabase()
     const deleted = await ProductModel.findByIdAndDelete(id).lean<LeanProduct | null>()
-    if (!deleted) throw new Error('This product no longer exists.')
+    if (!deleted) throw new Error('এই পণ্যটি আর নেই।')
   },
 
   async resetDemoData() {

@@ -2,9 +2,9 @@ import { Clock, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { shopConfig, whatsappLink } from '@/lib/shop-config'
 
 const reasons = [
-  { title: 'See it in person', body: 'Open the fridge door, hear the fan, check the TV picture before you decide.' },
-  { title: 'Honest advice', body: 'We help you choose the right size and model for your home and budget.' },
-  { title: 'Local support', body: 'Questions after you buy? We are just down the road, not a phone queue.' },
+  { title: 'নিজে দেখে নিন', body: 'ফ্রিজের দরজা খুলুন, ফ্যানের শব্দ শুনুন, টিভির ছবি দেখুন — তারপর সিদ্ধান্ত নিন।' },
+  { title: 'সৎ পরামর্শ', body: 'আপনার ঘর আর বাজেট অনুযায়ী সঠিক সাইজ ও মডেল বেছে নিতে সাহায্য করি।' },
+  { title: 'এলাকার সাপোর্ট', body: 'কেনার পরে সমস্যা? ফোনের লাইনে অপেক্ষা নয়, আমরা রাস্তার ওপরেই আছি।' },
 ]
 
 export function AboutSection() {
@@ -13,7 +13,7 @@ export function AboutSection() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-12 lg:px-8">
         <div className="flex flex-col gap-4 lg:col-span-5">
           <h2 id="about-title" className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-            Your neighbourhood appliance shop
+            আপনার পাড়ার ইলেকট্রনিকসের দোকান
           </h2>
           <p className="text-base leading-relaxed text-pretty text-muted-foreground">{shopConfig.intro}</p>
         </div>
@@ -38,10 +38,10 @@ export function ContactSection() {
         <div className="grid gap-10 p-6 sm:p-10 lg:grid-cols-2 lg:p-12">
           <div className="flex flex-col gap-4">
             <h2 id="contact-title" className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-              Visit the shop or give us a call
+              দোকানে আসুন বা ফোন করুন
             </h2>
             <p className="max-w-md text-base leading-relaxed text-background/75">
-              Prices and stock change often. Call or message before you travel and we will confirm availability for you.
+              দাম আর স্টক প্রায়ই বদলায়। আসার আগে ফোন বা মেসেজ দিন, আমরা স্টক নিশ্চিত করে জানাব।
             </p>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row">
               <a
@@ -49,7 +49,7 @@ export function ContactSection() {
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-background px-5 text-base font-medium text-foreground transition-opacity hover:opacity-90"
               >
                 <Phone className="size-4" aria-hidden="true" />
-                Call {shopConfig.phoneDisplay}
+                কল করুন {shopConfig.phoneDisplay}
               </a>
               <a
                 href={whatsappLink(`Hello ${shopConfig.name}, I have a question about a product.`)}
@@ -61,14 +61,14 @@ export function ContactSection() {
                 WhatsApp
               </a>
             </div>
-            <p className="text-xs text-background/60">Demo contact details — replace in lib/shop-config.ts.</p>
+            <p className="text-xs text-background/60">যোগাযোগের তথ্য ডেমো — lib/shop-config.ts এ বদলে নিন।</p>
           </div>
 
           <dl className="grid gap-6 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
               <dt className="flex items-center gap-2 text-sm text-background/60">
                 <MapPin className="size-4" aria-hidden="true" />
-                Address
+                ঠিকানা
               </dt>
               <dd className="text-base leading-relaxed">
                 {address.line1}
@@ -82,14 +82,14 @@ export function ContactSection() {
                   rel="noopener noreferrer"
                   className="mt-2 block text-sm font-medium underline underline-offset-4 hover:no-underline"
                 >
-                  Open in Google Maps
+                  গুগল ম্যাপে দেখুন
                 </a>
               </dd>
             </div>
             <div className="flex flex-col gap-2">
               <dt className="flex items-center gap-2 text-sm text-background/60">
                 <Clock className="size-4" aria-hidden="true" />
-                Opening hours
+                খোলার সময়
               </dt>
               <dd className="flex flex-col gap-2 text-base">
                 {hours.map((h) => (
