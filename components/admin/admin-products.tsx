@@ -158,7 +158,7 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
               key={product.id}
               className="grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 gap-y-3 border-b border-border p-3 last:border-b-0 sm:p-4 lg:grid-cols-[3.5rem_minmax(0,1fr)_8rem_9rem_7rem_7.5rem] lg:items-center lg:gap-4"
             >
-              <ProductImage src={product.images[0]} alt="" className="size-14 rounded-lg" />
+              <ProductImage src={product.images[0]?.url} alt="" className="size-14 rounded-lg" />
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="truncate font-medium">{product.name}</span>
                 <span className="truncate text-xs text-muted-foreground">

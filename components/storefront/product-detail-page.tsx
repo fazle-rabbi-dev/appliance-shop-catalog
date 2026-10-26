@@ -47,7 +47,7 @@ export function ProductDetailPage({
 
       <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-7">
-          <ProductGallery images={product.images} name={product.name} />
+          <ProductGallery images={product.images.map((image) => image.url)} name={product.name} />
         </div>
 
         <div className="flex flex-col gap-6 lg:col-span-5">

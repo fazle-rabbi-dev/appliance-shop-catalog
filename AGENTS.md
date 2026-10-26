@@ -15,7 +15,7 @@ A catalog website for a local electronics and home-appliance shop (fridges, rice
 - **Storefront (public):** browse categories, search and filter products, view product details, and find the shop's visit/contact info. There's no cart or checkout. Customers come to the shop in person.
 - **Admin (owner):** a dashboard, a product list, create/edit/delete products, and quick toggles for published, featured and availability.
 
-**Current status: working prototype, refactored for a database swap.** Storefront and admin are real App Router routes. Reads go through `lib/data/catalog-repository.ts` (in-memory mock seeded from `lib/mock-data.ts`), writes go through server actions, and admin routes are protected by a signed cookie session in `lib/data/auth.ts`. Both boundaries are designed to be replaced by Supabase or MongoDB without touching UI code. Don't add features that bypass `lib/data/*`.
+**Current status: working prototype on MongoDB.** Storefront and admin are real App Router routes. Reads go through `lib/data/catalog-repository.ts` (MongoDB via Mongoose), writes go through server actions, and admin routes are protected by a signed cookie session in `lib/data/auth.ts`. `lib/mock-data.ts` is now only the seed source (`bun run seed`). Don't add features that bypass `lib/data/*`.
 
 ## Tech stack
 
@@ -24,6 +24,7 @@ A catalog website for a local electronics and home-appliance shop (fridges, rice
 - shadcn/ui (Base UI primitives) with `lucide-react` icons
 - Bun is the package manager (`bun install`, `bun add`, `bunx`)
 - `next-themes` for light/dark (class strategy on `<html>`, system default)
+- MongoDB + Mongoose 9 (`MONGODB_URI`, optional `MONGODB_DB`)
 - Planned: Supabase (Postgres, Auth, Storage, RLS)
 
 ## Directory map
@@ -59,8 +60,10 @@ lib/
   auth-cookie.ts          Session cookie name (shared with proxy)
   mock-data.ts            Seed categories and products
   data/
-    catalog-repository.ts THE data boundary: interface + mock implementation
-    mock-store.ts         In-memory store seeded from mock-data
+    catalog-repository.ts THE data boundary: interface + Mongoose implementation
+    mongoose.ts           Cached connection (globalThis, HMR-safe)
+    models.ts             Mongoose schemas: Category, Product
+    seed.ts               Fills the DB from mock-data
     auth.ts               THE auth boundary: getSession, requireAdmin, signIn, signOut
   actions/
     catalog.ts            Server actions: save/patch/delete/reset
@@ -69,7 +72,8 @@ lib/
   shop-config.ts          Shop name, address, phone, hours, socials
   format.ts               Price formatting (Taka, uses "Tk" text, not ৳)
   utils.ts                cn()
-public/images/            Generated product and hero images
+scripts/seed.ts           CLI entry for `bun run seed`
+public/images/            Product and hero images
 
 ## Routing (App Router)
 
@@ -91,9 +95,10 @@ Data flows: server components read the repository directly, and the client mutat
 ## Domain model (`lib/types.ts`)
 
 - `Category`: id, name, slug, icon (`refrigerator | rice-cooker | tv | fan | blender | plug`), description
-- `Product`: id, name, slug, categoryId, brand, model, price (number, BDT), description, images (string[]), specs ({label, value}[]), availability (`in_stock | low_stock | out_of_stock`), published, featured, createdAt (ISO)
+- `Product`: id, name, slug, categoryId, brand, model, price (number, BDT), description, images (`ProductImage[]`), specs ({label, value}[]), availability (`in_stock | low_stock | out_of_stock`), published, featured, createdAt (ISO)
+- `ProductImage`: `{ url, publicId }`. `url` is an https URL or a `/images/...` path; `publicId` is the Cloudinary id used for deletion and is `null` for local images.
 - `ProductInput` = `Product` minus `id` and `createdAt`
-- `SessionUser`: email, role (`admin`)
+- `SessionUser`: username, role (`admin`)
 
 Rules:
 
@@ -110,7 +115,13 @@ Everything above `lib/data/` talks to interfaces only. Two boundaries:
    - writes: `createProduct`, `updateProduct`, `patchProduct`, `deleteProduct`, `resetDemoData` (prototype only)
 2. **Auth** — functions in `lib/data/auth.ts`: `getSession`, `requireAdmin(returnTo?)`, `signIn(username, password)`, `signOut`.
 
-Current implementation: in-memory map seeded from `lib/mock-data.ts`, kept on `globalThis`. Data resets when the dev server restarts. Auth is a single account from `ADMIN_USERNAME` + `ADMIN_PASSWORD` (no defaults, no demo hint in the UI) with an HMAC-signed cookie (`AUTH_SECRET`).
+Current implementation: MongoDB via Mongoose. Collections are `categories` and `products`; both use string `_id`s (seed categories are `cat-*`, products default to a UUID). `products.images` is an array of `{ url, publicId }` subdocuments, `products.specs` an array of `{ label, value }`, and `createdAt`/`updatedAt` come from Mongoose timestamps. `slug` has a unique index on both collections.
+
+- Connection lives in `lib/data/mongoose.ts`, cached on `globalThis`.
+- `bun run seed` (or the admin "Reset demo data" action) wipes both collections and re-inserts `lib/mock-data.ts`.
+- Storefront routes are `force-dynamic` because the data changes at runtime.
+
+Auth is a single account from `ADMIN_USERNAME` + `ADMIN_PASSWORD` (no defaults, no demo hint in the UI) with an HMAC-signed cookie (`AUTH_SECRET`).
 
 Rules:
 
@@ -128,7 +139,7 @@ request /admin/*
             └─ server actions re-check the session (defence in depth)
 ```
 
-## Supabase / MongoDB migration plan
+## Supabase migration plan (optional)
 
 1. **Schema**
    - `categories` (id, name, slug unique, icon, description, sort_order)
@@ -139,6 +150,7 @@ request /admin/*
    - Admin write only. Gate on an `admins` table or a role claim, not just "authenticated".
 3. **Code changes**
    - Write a second `CatalogRepository` implementation and change the export at the bottom of `lib/data/catalog-repository.ts`.
+   - Drop `lib/data/mongoose.ts` + `models.ts` once nothing imports them.
    - Replace the bodies in `lib/data/auth.ts` (Supabase Auth / Mongo session collection). Keep the function signatures.
    - Map snake_case columns to the camelCase `Product` type inside the repository only.
    - Delete `resetDemoData` and turn `mock-data.ts` into a seed script.
@@ -165,6 +177,7 @@ request /admin/*
 - `bun run dev` starts the dev server
 - `bun run build` makes a production build
 - `bunx tsc --noEmit` runs the type check
+- `bun run seed` seeds MongoDB with `lib/mock-data.ts` (requires `MONGODB_URI`)
 
 ## Out of scope (for now)
 

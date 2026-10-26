@@ -1,14 +1,14 @@
-import { getStore, resetStore } from '@/lib/data/mock-store'
-import type { Category, Product, ProductInput } from '@/lib/types'
+import { connectToDatabase } from '@/lib/data/mongoose'
+import { CategoryModel, ProductModel, type CategoryDoc, type ProductDoc } from '@/lib/data/models'
+import { seedDatabase } from '@/lib/data/seed'
+import type { Category, Product, ProductImage, ProductInput } from '@/lib/types'
 
 /**
  * THE DATA BOUNDARY.
  *
  * Everything above this line (pages, actions, components) talks to this
- * interface only. To move to Supabase or MongoDB, write a second object that
- * implements `CatalogRepository` and change the export at the bottom.
- *
- * The current implementation is an in-memory mock seeded from mock data.
+ * interface only. The Supabase migration would be a second object implementing
+ * `CatalogRepository`, with the export below swapped.
  */
 export interface CatalogRepository {
   listCategories(): Promise<Category[]>
@@ -27,90 +27,164 @@ export interface CatalogRepository {
   ): Promise<Product>
   deleteProduct(id: string): Promise<void>
 
-  /** Prototype only: restores the seeded catalog. */
+  /** Prototype helper: replaces the catalog with the seed data. */
   resetDemoData(): Promise<void>
 }
 
-function createId() {
-  return crypto.randomUUID()
+type LeanCategory = CategoryDoc
+type LeanProduct = ProductDoc
+
+function toCategory(doc: LeanCategory): Category {
+  return {
+    id: String(doc._id),
+    name: doc.name,
+    slug: doc.slug,
+    icon: doc.icon,
+    description: doc.description,
+  }
 }
 
-const mockCatalogRepository: CatalogRepository = {
+function toProduct(doc: LeanProduct): Product {
+  return {
+    id: String(doc._id),
+    name: doc.name,
+    slug: doc.slug,
+    categoryId: doc.categoryId,
+    brand: doc.brand,
+    model: doc.model,
+    price: doc.price,
+    description: doc.description,
+    images: (doc.images ?? []).map((image) => ({
+      url: image.url,
+      publicId: image.publicId ?? null,
+    })),
+    specs: doc.specs ?? [],
+    availability: doc.availability,
+    published: doc.published,
+    featured: doc.featured,
+    createdAt: new Date(doc.createdAt).toISOString(),
+  }
+}
+
+function normaliseImages(images: ProductImage[]): ProductImage[] {
+  return images
+    .map((image) => ({ url: image.url.trim(), publicId: image.publicId?.trim() || null }))
+    .filter((image) => image.url)
+}
+
+function isDuplicateKey(error: unknown) {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === 11000
+}
+
+async function assertUniqueSlug(slug: string, ignoreId?: string) {
+  const query: Record<string, unknown> = { slug }
+  if (ignoreId) query._id = { $ne: ignoreId }
+
+  await connectToDatabase()
+  if (await ProductModel.exists(query)) {
+    throw new Error('Another product already uses this URL slug.')
+  }
+}
+
+const mongoCatalogRepository: CatalogRepository = {
   async listCategories() {
-    return [...getStore().categories]
+    await connectToDatabase()
+    const docs = await CategoryModel.find().sort({ sortOrder: 1 }).lean<LeanCategory[]>()
+    return docs.map(toCategory)
   },
 
   async getCategoryBySlug(slug) {
-    return getStore().categories.find((category) => category.slug === slug) ?? null
+    await connectToDatabase()
+    const doc = await CategoryModel.findOne({ slug }).lean<LeanCategory | null>()
+    return doc ? toCategory(doc) : null
   },
 
   async listProducts() {
-    return [...getStore().products]
+    await connectToDatabase()
+    const docs = await ProductModel.find().sort({ createdAt: -1 }).lean<LeanProduct[]>()
+    return docs.map(toProduct)
   },
 
   async listPublishedProducts() {
-    return getStore().products.filter((product) => product.published)
+    await connectToDatabase()
+    const docs = await ProductModel.find({ published: true })
+      .sort({ createdAt: -1 })
+      .lean<LeanProduct[]>()
+    return docs.map(toProduct)
   },
 
   async getProductById(id) {
-    return getStore().products.find((product) => product.id === id) ?? null
+    await connectToDatabase()
+    const doc = await ProductModel.findById(id).lean<LeanProduct | null>()
+    return doc ? toProduct(doc) : null
   },
 
   async getPublishedProductBySlug(slug) {
-    return (
-      getStore().products.find((product) => product.slug === slug && product.published) ??
-      null
-    )
+    await connectToDatabase()
+    const doc = await ProductModel.findOne({ slug, published: true }).lean<LeanProduct | null>()
+    return doc ? toProduct(doc) : null
   },
 
   async createProduct(input) {
-    const store = getStore()
-    assertUniqueSlug(store.products, input.slug)
-    const product: Product = {
-      ...input,
-      id: createId(),
-      createdAt: new Date().toISOString(),
+    await assertUniqueSlug(input.slug)
+    try {
+      const created = await ProductModel.create({
+        ...input,
+        images: normaliseImages(input.images),
+      })
+      return toProduct(created.toObject<LeanProduct>())
+    } catch (error) {
+      if (isDuplicateKey(error)) throw new Error('Another product already uses this URL slug.')
+      throw error
     }
-    store.products = [product, ...store.products]
-    return product
   },
 
   async updateProduct(id, input) {
-    const store = getStore()
-    const existing = store.products.find((product) => product.id === id)
-    if (!existing) throw new Error('This product no longer exists.')
-    assertUniqueSlug(store.products, input.slug, id)
-    const updated: Product = { ...existing, ...input }
-    store.products = store.products.map((product) => (product.id === id ? updated : product))
-    return updated
+    await assertUniqueSlug(input.slug, id)
+    await connectToDatabase()
+
+    try {
+      const updated = await ProductModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            ...input,
+            images: normaliseImages(input.images),
+            updatedAt: new Date(),
+          },
+        },
+        { returnDocument: 'after', runValidators: true },
+      ).lean<LeanProduct | null>()
+
+      if (!updated) throw new Error('This product no longer exists.')
+      return toProduct(updated)
+    } catch (error) {
+      if (isDuplicateKey(error)) throw new Error('Another product already uses this URL slug.')
+      throw error
+    }
   },
 
   async patchProduct(id, patch) {
-    const store = getStore()
-    const existing = store.products.find((product) => product.id === id)
-    if (!existing) throw new Error('This product no longer exists.')
-    const updated: Product = { ...existing, ...patch }
-    store.products = store.products.map((product) => (product.id === id ? updated : product))
-    return updated
+    await connectToDatabase()
+    const updated = await ProductModel.findByIdAndUpdate(
+      id,
+      { $set: { ...patch, updatedAt: new Date() } },
+      { returnDocument: 'after', runValidators: true },
+    ).lean<LeanProduct | null>()
+
+    if (!updated) throw new Error('This product no longer exists.')
+    return toProduct(updated)
   },
 
   async deleteProduct(id) {
-    const store = getStore()
-    if (!store.products.some((product) => product.id === id)) {
-      throw new Error('This product no longer exists.')
-    }
-    store.products = store.products.filter((product) => product.id !== id)
+    await connectToDatabase()
+    const deleted = await ProductModel.findByIdAndDelete(id).lean<LeanProduct | null>()
+    if (!deleted) throw new Error('This product no longer exists.')
   },
 
   async resetDemoData() {
-    resetStore()
+    await seedDatabase()
   },
 }
 
-function assertUniqueSlug(products: Product[], slug: string, ignoreId?: string) {
-  const clash = products.some((product) => product.slug === slug && product.id !== ignoreId)
-  if (clash) throw new Error('Another product already uses this URL slug.')
-}
-
-/** Swap this binding when Supabase or MongoDB is wired up. */
-export const catalogRepository: CatalogRepository = mockCatalogRepository
+export const catalogRepository: CatalogRepository = mongoCatalogRepository

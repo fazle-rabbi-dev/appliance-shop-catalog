@@ -15,6 +15,13 @@ export interface ProductSpec {
   value: string
 }
 
+export interface ProductImage {
+  /** Any https URL or /images/ path. Cloudinary URL once uploads land. */
+  url: string
+  /** Cloudinary public id for deletion; null for local/static images. */
+  publicId: string | null
+}
+
 export interface Product {
   id: string
   name: string
@@ -24,7 +31,7 @@ export interface Product {
   model: string
   price: number
   description: string
-  images: string[]
+  images: ProductImage[]
   specs: ProductSpec[]
   availability: Availability
   published: boolean

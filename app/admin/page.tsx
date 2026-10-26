@@ -69,7 +69,7 @@ export default async function AdminDashboardRoute() {
                   href={adminRoutes.editProduct(product.id)}
                   className="flex items-center gap-3 p-3 hover:bg-muted/60 sm:gap-4 sm:px-4"
                 >
-                  <ProductImage src={product.images[0]} alt="" className="size-12 shrink-0 rounded-lg" />
+                  <ProductImage src={product.images[0]?.url} alt="" className="size-12 shrink-0 rounded-lg" />
                   <div className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate font-medium">{product.name}</span>
                     <span className="truncate text-xs text-muted-foreground">

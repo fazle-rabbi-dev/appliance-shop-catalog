@@ -1,4 +1,4 @@
-import type { Availability, ProductInput, ProductSpec } from './types'
+import type { Availability, ProductImage, ProductInput, ProductSpec } from './types'
 
 export interface ProductFormValues {
   name: string
@@ -8,7 +8,7 @@ export interface ProductFormValues {
   model: string
   price: string
   description: string
-  images: string[]
+  images: ProductImage[]
   specs: ProductSpec[]
   availability: Availability
   published: boolean
@@ -52,11 +52,11 @@ export function validateProduct(values: ProductFormValues): ProductFormErrors {
   if (!values.description.trim()) errors.description = 'Add a short description.'
   else if (values.description.length > 2000) errors.description = 'Keep the description under 2000 characters.'
 
-  const filledImages = values.images.map((v) => v.trim()).filter(Boolean)
+  const filledImages = values.images.map((image) => image.url.trim()).filter(Boolean)
   if (filledImages.length === 0) errors.images = 'Add at least one image URL.'
   const imageRows: Record<number, string> = {}
-  values.images.forEach((url, index) => {
-    if (url.trim() && !isValidImageUrl(url)) imageRows[index] = 'Enter a full https:// URL or a /images/ path.'
+  values.images.forEach((image, index) => {
+    if (image.url.trim() && !isValidImageUrl(image.url)) imageRows[index] = 'Enter a full https:// URL or a /images/ path.'
   })
   if (Object.keys(imageRows).length) errors.imageRows = imageRows
 
@@ -84,7 +84,7 @@ export function validateProductInput(input: ProductInput): string | null {
   if (!input.description.trim()) return 'Description is required.'
   if (input.description.length > 2000) return 'Keep the description under 2000 characters.'
   if (input.images.length === 0) return 'Add at least one image.'
-  if (input.images.some((url) => !isValidImageUrl(url))) return 'Every image needs a valid URL.'
+  if (input.images.some((image) => !isValidImageUrl(image.url))) return 'Every image needs a valid URL.'
   if (!AVAILABILITY.includes(input.availability)) return 'Pick a valid availability.'
   return null
 }
@@ -98,7 +98,9 @@ export function toProductInput(values: ProductFormValues): ProductInput {
     model: values.model.trim(),
     price: Math.round(Number(values.price)),
     description: values.description.trim(),
-    images: values.images.map((v) => v.trim()).filter(Boolean),
+    images: values.images
+      .map((image) => ({ url: image.url.trim(), publicId: image.publicId?.trim() || null }))
+      .filter((image) => image.url),
     specs: values.specs
       .map((s) => ({ label: s.label.trim(), value: s.value.trim() }))
       .filter((s) => s.label && s.value),

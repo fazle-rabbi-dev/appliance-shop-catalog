@@ -31,7 +31,7 @@ function toFormValues(product?: Product): ProductFormValues {
       model: '',
       price: '',
       description: '',
-      images: [''],
+      images: [{ url: '', publicId: null }],
       specs: [{ label: '', value: '' }],
       availability: 'in_stock',
       published: true,
@@ -46,7 +46,7 @@ function toFormValues(product?: Product): ProductFormValues {
     model: product.model,
     price: String(product.price),
     description: product.description,
-    images: product.images.length ? [...product.images] : [''],
+    images: product.images.length ? product.images.map((image) => ({ ...image })) : [{ url: '', publicId: null }],
     specs: product.specs.length ? product.specs.map((s) => ({ ...s })) : [{ label: '', value: '' }],
     availability: product.availability,
     published: product.published,
@@ -245,13 +245,13 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               The first image is used as the main photo. Use full https:// links or paths like /images/fan.png.
             </p>
             <ol className="flex flex-col gap-3">
-              {values.images.map((url, index) => {
+              {values.images.map((image, index) => {
                 const rowError = errors.imageRows?.[index]
                 const rowId = `${fieldId('image')}-${index}`
                 return (
                   <li key={index} className="flex gap-3">
                     <ProductImage
-                      src={url.trim() && isValidImageUrl(url) ? url.trim() : undefined}
+                      src={image.url.trim() && isValidImageUrl(image.url) ? image.url.trim() : undefined}
                       alt={`Preview of image ${index + 1}`}
                       className="size-16 shrink-0 rounded-lg border border-border"
                     />
@@ -265,11 +265,11 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                           id={rowId}
                           type="url"
                           inputMode="url"
-                          value={url}
+                          value={image.url}
                           placeholder="https://…"
                           onChange={(e) => {
                             const images = [...values.images]
-                            images[index] = e.target.value
+                            images[index] = { ...image, url: e.target.value }
                             update({ images })
                           }}
                           aria-invalid={Boolean(rowError || (errors.images && index === 0))}
@@ -301,7 +301,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               variant="outline"
               className="h-10 w-fit px-3"
               disabled={values.images.length >= 8}
-              onClick={() => update({ images: [...values.images, ''] })}
+              onClick={() => update({ images: [...values.images, { url: '', publicId: null }] })}
             >
               <Plus aria-hidden="true" />
               Add image URL

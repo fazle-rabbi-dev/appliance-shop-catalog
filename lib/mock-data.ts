@@ -1,4 +1,4 @@
-import type { Category, Product } from './types'
+import type { Category, Product, ProductImage } from './types'
 
 /**
  * Demo catalog seed. Prices and specs are plausible placeholders, not verified
@@ -13,7 +13,7 @@ export const seedCategories: Category[] = [
   { id: 'cat-other', name: 'Other Appliances', slug: 'other-appliances', icon: 'plug', description: 'Ovens, kettles, irons and more' },
 ]
 
-const img = (name: string) => `/images/${name}.png`
+const img = (name: string): ProductImage => ({ url: `/images/${name}.png`, publicId: null })
 
 const daysAgo = (days: number) => new Date(Date.UTC(2026, 9, 24) - days * 86_400_000).toISOString()
 
