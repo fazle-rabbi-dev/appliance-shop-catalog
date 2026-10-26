@@ -1,21 +1,21 @@
-'use client'
-
 import { Plus, RotateCcw } from 'lucide-react'
-import { useState } from 'react'
+import Link from 'next/link'
 import { AvailabilityBadge } from '@/components/shared/availability-badge'
-import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { ProductImage } from '@/components/shared/product-image'
-import { useToast } from '@/components/shared/toast-provider'
-import { Button, buttonVariants } from "@/components/ui/button"
-import { useCatalog } from '@/hooks/use-catalog'
-import { catalogRepository } from '@/lib/catalog-repository'
+import { buttonVariants } from '@/components/ui/button'
+import { ResetDemoData } from '@/components/admin/reset-demo-data'
+import { catalogRepository } from '@/lib/data/catalog-repository'
 import { formatDate, formatTaka } from '@/lib/format'
-import { cn } from "@/lib/utils"
+import { adminRoutes } from '@/lib/routes'
+import { cn } from '@/lib/utils'
 
-export function AdminDashboard() {
-  const { products, categories, categoryById } = useCatalog()
-  const { notify } = useToast()
-  const [confirmReset, setConfirmReset] = useState(false)
+export default async function AdminDashboardRoute() {
+  const [products, categories] = await Promise.all([
+    catalogRepository.listProducts(),
+    catalogRepository.listCategories(),
+  ])
+
+  const categoryById = new Map(categories.map((category) => [category.id, category]))
 
   const stats = [
     { label: 'Total products', value: products.length },
@@ -26,17 +26,6 @@ export function AdminDashboard() {
 
   const recent = [...products].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5)
 
-  async function handleReset() {
-    try {
-      await catalogRepository.resetDemoData()
-      notify('Demo data restored.')
-    } catch (error) {
-      notify(error instanceof Error ? error.message : 'Could not reset data.', 'error')
-    } finally {
-      setConfirmReset(false)
-    }
-  }
-
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -44,10 +33,10 @@ export function AdminDashboard() {
           <h1 className="text-2xl font-semibold text-balance sm:text-3xl">Overview</h1>
           <p className="text-sm text-muted-foreground">A quick look at what customers can see right now.</p>
         </div>
-        <a href="#admin/new" className={cn(buttonVariants(), "h-11 gap-2 px-4")}>
+        <Link href={adminRoutes.newProduct} className={cn(buttonVariants(), 'h-11 gap-2 px-4')}>
           <Plus aria-hidden="true" />
           Add product
-        </a>
+        </Link>
       </div>
 
       <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -64,9 +53,9 @@ export function AdminDashboard() {
           <h2 id="recent-heading" className="text-lg font-semibold">
             Recently added
           </h2>
-          <a href="#admin/products" className="text-sm font-medium text-primary hover:underline">
+          <Link href={adminRoutes.products} className="text-sm font-medium text-primary hover:underline">
             Manage all products
-          </a>
+          </Link>
         </div>
         {recent.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
@@ -76,8 +65,8 @@ export function AdminDashboard() {
           <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
             {recent.map((product) => (
               <li key={product.id}>
-                <a
-                  href={`#admin/edit/${encodeURIComponent(product.id)}`}
+                <Link
+                  href={adminRoutes.editProduct(product.id)}
                   className="flex items-center gap-3 p-3 hover:bg-muted/60 sm:gap-4 sm:px-4"
                 >
                   <ProductImage src={product.images[0]} alt="" className="size-12 shrink-0 rounded-lg" />
@@ -96,7 +85,7 @@ export function AdminDashboard() {
                       Draft
                     </span>
                   ) : null}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -105,25 +94,16 @@ export function AdminDashboard() {
 
       <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h2 className="text-sm font-semibold">Restore demo data</h2>
+          <h2 className="flex items-center gap-2 text-sm font-semibold">
+            <RotateCcw className="size-4 text-muted-foreground" aria-hidden="true" />
+            Restore demo data
+          </h2>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Discards every change saved in this browser and reloads the original sample catalog.
+            Replaces the current catalog with the original sample data.
           </p>
         </div>
-        <Button variant="outline" onClick={() => setConfirmReset(true)}>
-          <RotateCcw aria-hidden="true" />
-          Reset demo data
-        </Button>
+        <ResetDemoData />
       </section>
-
-      <ConfirmDialog
-        open={confirmReset}
-        title="Reset all demo data?"
-        description="All products you added, edited or deleted in this browser will be replaced by the original sample catalog."
-        confirmLabel="Reset data"
-        onConfirm={handleReset}
-        onCancel={() => setConfirmReset(false)}
-      />
     </div>
   )
 }

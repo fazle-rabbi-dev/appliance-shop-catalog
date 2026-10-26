@@ -1,4 +1,5 @@
-import { productsHref } from '@/hooks/use-hash-route'
+import Link from 'next/link'
+import { productsHref } from '@/lib/routes'
 import { shopConfig } from '@/lib/shop-config'
 import type { Category } from '@/lib/types'
 
@@ -15,9 +16,9 @@ export function SiteFooter({ categories }: { categories: Category[] }) {
           <ul className="flex flex-col gap-1.5">
             {categories.map((c) => (
               <li key={c.id}>
-                <a href={productsHref({ category: c.slug })} className="text-sm text-muted-foreground hover:text-foreground">
+                <Link href={productsHref({ category: c.slug })} className="text-sm text-muted-foreground hover:text-foreground">
                   {c.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -43,9 +44,9 @@ export function SiteFooter({ categories }: { categories: Category[] }) {
           <p>
             © {new Date().getFullYear()} {shopConfig.name}. Demo storefront.
           </p>
-          <a href="#admin" className="hover:text-foreground">
+          <Link href="/login" className="hover:text-foreground">
             Staff login
-          </a>
+          </Link>
         </div>
       </div>
     </footer>

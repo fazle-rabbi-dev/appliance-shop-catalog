@@ -1,13 +1,13 @@
 'use client'
 
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useId, useState } from 'react'
 import { ProductImage } from '@/components/shared/product-image'
 import { useToast } from '@/components/shared/toast-provider'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { navigate } from '@/hooks/use-hash-route'
-import { useCatalog } from '@/hooks/use-catalog'
-import { catalogRepository } from '@/lib/catalog-repository'
+import { saveProductAction } from '@/lib/actions/catalog'
 import { availabilityLabel, availabilityOptions, slugify } from '@/lib/format'
 import {
   hasErrors,
@@ -17,7 +17,8 @@ import {
   type ProductFormErrors,
   type ProductFormValues,
 } from '@/lib/product-validation'
-import type { Product } from '@/lib/types'
+import { adminRoutes, productHref } from '@/lib/routes'
+import type { Category, Product } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 function toFormValues(product?: Product): ProductFormValues {
@@ -56,8 +57,8 @@ function toFormValues(product?: Product): ProductFormValues {
 const inputClass =
   'h-11 w-full rounded-lg border border-input bg-card px-3 text-base sm:text-sm aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/15'
 
-export function ProductForm({ product }: { product?: Product }) {
-  const { products, categories } = useCatalog()
+export function ProductForm({ product, categories }: { product?: Product; categories: Category[] }) {
+  const router = useRouter()
   const { notify } = useToast()
   const uid = useId()
   const [values, setValues] = useState<ProductFormValues>(() => toFormValues(product))
@@ -70,12 +71,7 @@ export function ProductForm({ product }: { product?: Product }) {
   const fieldId = (name: string) => `${uid}-${name}`
 
   function collectErrors(next: ProductFormValues) {
-    const result = validateProduct(next)
-    const slug = next.slug.trim()
-    if (!result.slug && products.some((p) => p.slug === slug && p.id !== product?.id)) {
-      result.slug = 'Another product already uses this slug.'
-    }
-    return result
+    return validateProduct(next)
   }
 
   function update(patch: Partial<ProductFormValues>) {
@@ -99,20 +95,18 @@ export function ProductForm({ product }: { product?: Product }) {
       return
     }
     setSaving(true)
-    try {
-      const input = toProductInput(values)
-      if (product) {
-        await catalogRepository.updateProduct(product.id, input)
-        notify(`Saved changes to “${input.name}”.`)
-      } else {
-        await catalogRepository.createProduct(input)
-        notify(`Added “${input.name}”.`)
-      }
-      navigate('#admin/products')
-    } catch (error) {
-      notify(error instanceof Error ? error.message : 'Could not save the product.', 'error')
+    const input = toProductInput(values)
+    const result = await saveProductAction(product?.id ?? null, input)
+
+    if (!result.ok) {
+      notify(result.error, 'error')
       setSaving(false)
+      return
     }
+
+    notify(product ? `Saved changes to “${input.name}”.` : `Added “${input.name}”.`)
+    router.push(adminRoutes.products)
+    router.refresh()
   }
 
   const errorId = (name: string) => (errors[name as keyof ProductFormErrors] ? `${fieldId(name)}-error` : undefined)
@@ -120,13 +114,13 @@ export function ProductForm({ product }: { product?: Product }) {
   return (
     <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <a
-          href="#admin/products"
+        <Link
+          href={adminRoutes.products}
           className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           Back to products
-        </a>
+        </Link>
         <h1 className="text-2xl font-semibold text-balance sm:text-3xl">
           {isEdit ? `Edit ${product?.name}` : 'Add a product'}
         </h1>
@@ -156,7 +150,7 @@ export function ProductForm({ product }: { product?: Product }) {
               required
               id={fieldId('slug')}
               error={errors.slug}
-              hint={`Page address: #product/${values.slug || 'your-product'}`}
+              hint={`Page address: ${productHref(values.slug || 'your-product')}`}
             >
               <input
                 id={fieldId('slug')}
@@ -405,9 +399,9 @@ export function ProductForm({ product }: { product?: Product }) {
           </Fieldset>
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row lg:flex-col">
-            <a href="#admin/products" className={cn(buttonVariants({ variant: 'outline' }), 'h-11 px-4 sm:flex-1 lg:flex-none')}>
+            <Link href={adminRoutes.products} className={cn(buttonVariants({ variant: 'outline' }), 'h-11 px-4 sm:flex-1 lg:flex-none')}>
               Cancel
-            </a>
+            </Link>
             <Button type="submit" disabled={saving} className="h-11 px-4 sm:flex-1 lg:flex-none">
               {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Add product'}
             </Button>

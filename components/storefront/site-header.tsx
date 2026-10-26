@@ -1,35 +1,39 @@
 'use client'
 
 import { LayoutDashboard, MapPin, Menu, Phone, Search, X } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { navigate, productsHref, type Route } from '@/hooks/use-hash-route'
+import { adminRoutes, homeSectionHref, loginHref, productsHref } from '@/lib/routes'
 import { shopConfig } from '@/lib/shop-config'
 import { cn } from '@/lib/utils'
 
 const links = [
-  { href: '#', label: 'Home', match: (r: Route) => r.name === 'home' && !r.section },
-  { href: '#products', label: 'Products', match: (r: Route) => r.name === 'products' || r.name === 'product' },
-  { href: '#categories', label: 'Categories', match: (r: Route) => r.name === 'home' && r.section === 'categories' },
-  { href: '#about', label: 'About', match: (r: Route) => r.name === 'home' && r.section === 'about' },
-  { href: '#contact', label: 'Contact', match: (r: Route) => r.name === 'home' && r.section === 'contact' },
+  { href: '/', label: 'Home', section: null },
+  { href: productsHref(), label: 'Products', section: null },
+  { href: homeSectionHref('categories'), label: 'Categories', section: 'categories' },
+  { href: homeSectionHref('about'), label: 'About', section: 'about' },
+  { href: homeSectionHref('contact'), label: 'Contact', section: 'contact' },
 ]
 
-export function SiteHeader({ route }: { route: Route }) {
+export function SiteHeader() {
+  const pathname = usePathname()
+  const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
-  const initialQuery = route.name === 'products' ? (route.q ?? '') : ''
+
+  const isProducts = pathname.startsWith('/products')
 
   function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const q = String(new FormData(event.currentTarget).get('q') ?? '').trim()
-    const category = route.name === 'products' ? route.category : undefined
     setMenuOpen(false)
-    navigate(productsHref({ q: q || undefined, category }))
+    router.push(productsHref({ q: q || undefined }))
   }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <a href="#" className="flex shrink-0 items-center gap-2.5" aria-label={`${shopConfig.name} home`}>
+        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label={`${shopConfig.name} home`}>
           <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-sm font-bold text-background">
             {shopConfig.shortName.charAt(0)}
           </span>
@@ -37,15 +41,15 @@ export function SiteHeader({ route }: { route: Route }) {
             <span className="text-sm font-semibold tracking-tight">{shopConfig.name}</span>
             <span className="hidden text-xs text-muted-foreground sm:block">Home appliances</span>
           </span>
-        </a>
+        </Link>
 
         <nav aria-label="Main" className="ml-6 hidden md:block">
           <ul className="flex items-center gap-1">
             {links.map((link) => {
-              const active = link.match(route)
+              const active = link.label === 'Products' ? isProducts : pathname === '/' && link.label === 'Home'
               return (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
@@ -54,19 +58,14 @@ export function SiteHeader({ route }: { route: Route }) {
                     )}
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               )
             })}
           </ul>
         </nav>
 
-        <form
-          role="search"
-          onSubmit={handleSearch}
-          key={initialQuery}
-          className="ml-auto hidden w-full max-w-xs items-center lg:flex"
-        >
+        <form role="search" onSubmit={handleSearch} className="ml-auto hidden w-full max-w-xs items-center lg:flex">
           <label htmlFor="header-search" className="sr-only">
             Search products
           </label>
@@ -76,36 +75,35 @@ export function SiteHeader({ route }: { route: Route }) {
               id="header-search"
               name="q"
               type="search"
-              defaultValue={initialQuery}
+              defaultValue=""
               placeholder="Search refrigerators, TVs…"
               className="h-10 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20"
             />
           </div>
         </form>
 
-        <a
-          href="#admin"
+        <Link
+          href={loginHref(adminRoutes.dashboard)}
           className="ml-auto hidden items-center gap-1.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex lg:ml-0"
         >
           <LayoutDashboard className="size-4" aria-hidden="true" />
-          Admin
-          <span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase">Demo</span>
-        </a>
+          Staff
+        </Link>
 
-        <a
-          href="#contact"
-          className="hidden shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 active:translate-y-px sm:inline-flex lg:hidden xl:inline-flex"
+        <Link
+          href={homeSectionHref('contact')}
+          className="hidden shrink-0 items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary/90 active:translate-y-px sm:inline-flex lg:hidden xl:inline-flex"
         >
           <MapPin className="size-4" aria-hidden="true" />
           Visit Our Shop
-        </a>
+        </Link>
 
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
-          className="ml-auto inline-flex size-10 items-center justify-center rounded-lg border border-border md:hidden sm:ml-0"
+          className="ml-auto inline-flex size-10 items-center justify-center rounded-lg border border-border sm:ml-0 md:hidden"
         >
           {menuOpen ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
           <span className="sr-only">{menuOpen ? 'Close menu' : 'Open menu'}</span>
@@ -124,7 +122,7 @@ export function SiteHeader({ route }: { route: Route }) {
                 id="mobile-search"
                 name="q"
                 type="search"
-                defaultValue={initialQuery}
+                defaultValue=""
                 placeholder="Search products"
                 className="h-11 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-base placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none"
               />
@@ -133,25 +131,24 @@ export function SiteHeader({ route }: { route: Route }) {
               <ul className="flex flex-col">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <a
+                    <Link
                       href={link.href}
                       onClick={() => setMenuOpen(false)}
-                      aria-current={link.match(route) ? 'page' : undefined}
                       className="block rounded-md px-2 py-3 text-base font-medium hover:bg-muted"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
                 <li>
-                  <a
-                    href="#admin"
+                  <Link
+                    href={loginHref(adminRoutes.dashboard)}
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2 rounded-md px-2 py-3 text-base font-medium text-muted-foreground hover:bg-muted"
                   >
                     <LayoutDashboard className="size-4" aria-hidden="true" />
-                    Admin (demo)
-                  </a>
+                    Staff login
+                  </Link>
                 </li>
               </ul>
             </nav>

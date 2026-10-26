@@ -70,6 +70,25 @@ export function hasErrors(errors: ProductFormErrors) {
   return Object.keys(errors).length > 0
 }
 
+const AVAILABILITY: Availability[] = ['in_stock', 'low_stock', 'out_of_stock']
+
+/** Server-side guard. Returns a user-facing message, or null when valid. */
+export function validateProductInput(input: ProductInput): string | null {
+  if (!input.name.trim()) return 'Product name is required.'
+  if (input.name.trim().length > 120) return 'Keep the name under 120 characters.'
+  if (!SLUG_PATTERN.test(input.slug)) return 'Slug must use lowercase letters, numbers and hyphens.'
+  if (!input.categoryId) return 'Choose a category.'
+  if (!input.brand.trim()) return 'Brand is required.'
+  if (!Number.isFinite(input.price) || input.price < 0) return 'Price must be 0 or more.'
+  if (input.price > 10_000_000) return 'That price looks too high.'
+  if (!input.description.trim()) return 'Description is required.'
+  if (input.description.length > 2000) return 'Keep the description under 2000 characters.'
+  if (input.images.length === 0) return 'Add at least one image.'
+  if (input.images.some((url) => !isValidImageUrl(url))) return 'Every image needs a valid URL.'
+  if (!AVAILABILITY.includes(input.availability)) return 'Pick a valid availability.'
+  return null
+}
+
 export function toProductInput(values: ProductFormValues): ProductInput {
   return {
     name: values.name.trim(),

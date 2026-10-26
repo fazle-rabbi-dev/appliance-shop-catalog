@@ -1,5 +1,6 @@
+import Link from 'next/link'
 import { CategoryIcon } from '@/components/shared/category-icon'
-import { productsHref } from '@/hooks/use-hash-route'
+import { productsHref } from '@/lib/routes'
 import type { Category } from '@/lib/types'
 
 export function CategoryGrid({ categories, counts }: { categories: Category[]; counts: Map<string, number> }) {
@@ -16,7 +17,7 @@ export function CategoryGrid({ categories, counts }: { categories: Category[]; c
           const count = counts.get(category.id) ?? 0
           return (
             <li key={category.id}>
-              <a
+              <Link
                 href={productsHref({ category: category.slug })}
                 className="group flex h-full flex-col gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent"
               >
@@ -29,7 +30,7 @@ export function CategoryGrid({ categories, counts }: { categories: Category[]; c
                     {count} {count === 1 ? 'product' : 'products'}
                   </span>
                 </span>
-              </a>
+              </Link>
             </li>
           )
         })}

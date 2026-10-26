@@ -1,13 +1,14 @@
 'use client'
 
 import { PackageSearch, Search, SlidersHorizontal, X } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
-import { useCatalog } from '@/hooks/use-catalog'
-import { navigate, productsHref } from '@/hooks/use-hash-route'
-import { availabilityLabel, availabilityOptions } from '@/lib/format'
-import type { Availability } from '@/lib/types'
-import { cn } from '@/lib/utils'
 import { ProductCard } from './product-card'
+import { availabilityLabel, availabilityOptions } from '@/lib/format'
+import { productsHref } from '@/lib/routes'
+import type { Availability, Category, Product } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 type SortKey = 'featured' | 'price-asc' | 'price-desc' | 'newest'
 type AvailabilityFilter = 'all' | 'available' | Availability
@@ -19,11 +20,22 @@ const sortLabels: Record<SortKey, string> = {
   newest: 'Newest first',
 }
 
-export function ProductsPage({ categorySlug, query }: { categorySlug?: string; query?: string }) {
-  const { categories, publishedProducts, categoryById } = useCatalog()
+export function ProductsPage({
+  categories,
+  products,
+  categorySlug,
+  query,
+}: {
+  categories: Category[]
+  products: Product[]
+  categorySlug?: string
+  query?: string
+}) {
+  const router = useRouter()
   const [sort, setSort] = useState<SortKey>('featured')
   const [availability, setAvailability] = useState<AvailabilityFilter>('all')
 
+  const categoryById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const activeCategory = categories.find((c) => c.slug === categorySlug)
   const q = (query ?? '').trim().toLowerCase()
   const hasActiveFilters = Boolean(categorySlug || q || availability !== 'all' || sort !== 'featured')
@@ -31,11 +43,11 @@ export function ProductsPage({ categorySlug, query }: { categorySlug?: string; q
   function resetFilters() {
     setAvailability('all')
     setSort('featured')
-    navigate(productsHref(), { replace: true })
+    router.replace(productsHref())
   }
 
   const results = useMemo(() => {
-    const filtered = publishedProducts.filter((p) => {
+    const filtered = products.filter((p) => {
       if (activeCategory && p.categoryId !== activeCategory.id) return false
       if (availability === 'available' && p.availability === 'out_of_stock') return false
       if (availability !== 'all' && availability !== 'available' && p.availability !== availability) return false
@@ -49,14 +61,14 @@ export function ProductsPage({ categorySlug, query }: { categorySlug?: string; q
     else if (sort === 'newest') sorted.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     else sorted.sort((a, b) => Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name))
     return sorted
-  }, [publishedProducts, activeCategory, availability, q, sort, categoryById])
+  }, [products, activeCategory, availability, q, sort, categoryById])
 
   const heading = activeCategory?.name ?? 'All products'
 
   function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const value = String(new FormData(event.currentTarget).get('q') ?? '').trim()
-    navigate(productsHref({ category: categorySlug, q: value || undefined }), { replace: true })
+    router.push(productsHref({ category: categorySlug, q: value || undefined }))
   }
 
   return (
@@ -64,9 +76,9 @@ export function ProductsPage({ categorySlug, query }: { categorySlug?: string; q
       <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted-foreground">
         <ol className="flex items-center gap-1.5">
           <li>
-            <a href="#" className="hover:text-foreground">
+            <Link href="/" className="hover:text-foreground">
               Home
-            </a>
+            </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li aria-current="page" className="text-foreground">
@@ -105,7 +117,7 @@ export function ProductsPage({ categorySlug, query }: { categorySlug?: string; q
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           <ul className="flex w-max gap-2" aria-label="Filter by category">
             <li>
-              <a
+              <Link
                 href={productsHref({ q: query })}
                 aria-current={!activeCategory ? 'true' : undefined}
                 className={cn(
@@ -114,13 +126,13 @@ export function ProductsPage({ categorySlug, query }: { categorySlug?: string; q
                 )}
               >
                 All
-              </a>
+              </Link>
             </li>
             {categories.map((c) => {
               const active = activeCategory?.id === c.id
               return (
                 <li key={c.id}>
-                  <a
+                  <Link
                     href={productsHref({ category: c.slug, q: query })}
                     aria-current={active ? 'true' : undefined}
                     className={cn(
@@ -129,7 +141,7 @@ export function ProductsPage({ categorySlug, query }: { categorySlug?: string; q
                     )}
                   >
                     {c.name}
-                  </a>
+                  </Link>
                 </li>
               )
             })}
@@ -200,13 +212,17 @@ export function ProductsPage({ categorySlug, query }: { categorySlug?: string; q
         <EmptyState
           title="Category not found"
           body="This category may have been renamed or removed."
-          actionHref="#products"
+          actionHref={productsHref()}
           actionLabel="See all products"
         />
       ) : results.length === 0 ? (
         <EmptyState
           title="No products match"
-          body={q ? 'Try a different word, check the spelling, or search across all categories.' : 'Nothing is listed here yet. Call the shop to ask about upcoming stock.'}
+          body={
+            q
+              ? 'Try a different word, check the spelling, or search across all categories.'
+              : 'Nothing is listed here yet. Call the shop to ask about upcoming stock.'
+          }
           actionHref={productsHref()}
           actionLabel="Clear search and filters"
         />
@@ -223,16 +239,29 @@ export function ProductsPage({ categorySlug, query }: { categorySlug?: string; q
   )
 }
 
-function EmptyState({ title, body, actionHref, actionLabel }: { title: string; body: string; actionHref: string; actionLabel: string }) {
+function EmptyState({
+  title,
+  body,
+  actionHref,
+  actionLabel,
+}: {
+  title: string
+  body: string
+  actionHref: string
+  actionLabel: string
+}) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-16 text-center">
       <PackageSearch className="size-8 text-muted-foreground" aria-hidden="true" />
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <a href={actionHref} className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-muted">
+      <Link
+        href={actionHref}
+        className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-muted"
+      >
         <X className="size-4" aria-hidden="true" />
         {actionLabel}
-      </a>
+      </Link>
     </div>
   )
 }

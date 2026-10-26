@@ -1,3 +1,11 @@
+<!-- nextjs rule begin -->
+
+> This is not nextjs you know from training data, theres lots of breaking changes:
+
+Refer this path for latest nextjs docs: `D:\Software-Development\@web-development\@nextjs\electronics-shop\node_modules\next\dist\docs`
+
+<!-- nextjs rule end -->
+
 # AGENTS.md
 
 ## Project overview
@@ -7,7 +15,7 @@ A catalog website for a local electronics and home-appliance shop (fridges, rice
 - **Storefront (public):** browse categories, search and filter products, view product details, and find the shop's visit/contact info. There's no cart or checkout. Customers come to the shop in person.
 - **Admin (owner):** a dashboard, a product list, create/edit/delete products, and quick toggles for published, featured and availability.
 
-**Current status: working prototype.** Data is stored in `localStorage` and seeded from mock data. **The plan is to move persistence and admin auth to Supabase.** Don't add new features that rely on `localStorage`.
+**Current status: working prototype, refactored for a database swap.** Storefront and admin are real App Router routes. Reads go through `lib/data/catalog-repository.ts` (in-memory mock seeded from `lib/mock-data.ts`), writes go through server actions, and admin routes are protected by a signed cookie session in `lib/data/auth.ts`. Both boundaries are designed to be replaced by Supabase or MongoDB without touching UI code. Don't add features that bypass `lib/data/*`.
 
 ## Tech stack
 
@@ -20,84 +28,122 @@ A catalog website for a local electronics and home-appliance shop (fridges, rice
 ## Directory map
 
 app/
-  layout.tsx            Fonts, metadata, root <html> with bg-background
-  page.tsx              Renders <AppShell />
-  globals.css           Design tokens (colors, radius, fonts)
+  layout.tsx              Fonts, metadata, ToastProvider
+  globals.css             Design tokens (colors, radius, fonts)
+  (storefront)/
+    layout.tsx            SiteHeader + SiteFooter + skip link
+    page.tsx              Home
+    products/page.tsx     Listing (?category=&q=)
+    products/[slug]/page.tsx  Detail
+  login/page.tsx          Staff sign in
+  admin/
+    layout.tsx            requireAdmin() + AdminShell
+    page.tsx              Dashboard
+    products/page.tsx     Product list
+    products/new/page.tsx
+    products/[id]/edit/page.tsx
+proxy.ts                  First-line auth guard for /admin/*
 components/
-  app-shell.tsx         Top-level router switch (storefront vs admin)
-  storefront/           site-header, hero-section, category-grid, product-card,
-                        home-page, products-page, product-detail-page,
-                        visit-section, site-footer
-  admin/                admin-shell, admin-dashboard, admin-products, product-form
-  shared/               product-image, availability-badge, category-icon,
-                        toast-provider, confirm-dialog
-  ui/                   shadcn components
-hooks/
-  use-catalog.ts        Reads catalog state (useSyncExternalStore over the repository)
-  use-hash-route.ts     Hash router: parseHash, useHashRoute, navigate, productsHref
+  auth/login-form.tsx
+  storefront/             site-header, hero-section, category-grid, product-card,
+                          home-page, products-page, product-detail-page,
+                          product-gallery, visit-section, site-footer
+  admin/                  admin-shell, admin-products, product-form, reset-demo-data
+  shared/                 product-image, availability-badge, category-icon,
+                          toast-provider, confirm-dialog
+  ui/                     shadcn components
 lib/
-  types.ts              Domain types (source of truth)
-  catalog-repository.ts The ONLY data-access layer (currently localStorage)
-  mock-data.ts          Seed categories and products
-  product-validation.ts Form validation and slug generation
-  shop-config.ts        Shop name, address, phone, hours, socials
-  format.ts             Price formatting (Taka, uses "Tk" text, not the ৳ glyph)
-  utils.ts              cn()
-public/images/          Generated product and hero images
+  types.ts                Domain types (source of truth)
+  routes.ts               All URL builders (productsHref, productHref, adminRoutes)
+  auth-cookie.ts          Session cookie name (shared with proxy)
+  mock-data.ts            Seed categories and products
+  data/
+    catalog-repository.ts THE data boundary: interface + mock implementation
+    mock-store.ts         In-memory store seeded from mock-data
+    auth.ts               THE auth boundary: getSession, requireAdmin, signIn, signOut
+  actions/
+    catalog.ts            Server actions: save/patch/delete/reset
+    auth.ts               Server actions: signIn/signOut
+  product-validation.ts   Form + server-side validation, slug generation
+  shop-config.ts          Shop name, address, phone, hours, socials
+  format.ts               Price formatting (Taka, uses "Tk" text, not ৳)
+  utils.ts                cn()
+public/images/            Generated product and hero images
 
-## Routing (hash-based, single page)
+## Routing (App Router)
 
-| Hash | Route |
-|---|---|
-| `#` / `#categories` / `#featured` / `#about` / `#contact` | Home (optionally scrolled to a section) |
-| `#products?category=<slug>&q=<text>` | Product listing with filters |
-| `#product/<slug>` | Product detail |
-| `#admin` | Admin dashboard |
-| `#admin/products` | Admin product list |
-| `#admin/new` | Create product |
-| `#admin/edit/<id>` | Edit product |
+| URL                                  | Page                          |
+| ------------------------------------ | ----------------------------- |
+| `/` `/#categories` `/#about` `/#contact` | Home (anchors scroll)     |
+| `/products?category=<slug>&q=<text>` | Product listing               |
+| `/products/<slug>`                   | Product detail                |
+| `/login?next=<path>`                 | Staff sign in                 |
+| `/admin`                             | Admin dashboard               |
+| `/admin/products`                    | Admin product list            |
+| `/admin/products/new`                | Create product                |
+| `/admin/products/<id>/edit`          | Edit product                  |
 
-Use `navigate()` and `productsHref()` from `hooks/use-hash-route.ts`. Don't build hash strings by hand. When moving to Supabase, you can migrate to real App Router routes (`app/products/[slug]`, `app/admin/...`). If you do, migrate everything at once and remove the hash router.
+Build URLs with the helpers in `lib/routes.ts`. Don't hardcode path strings in components.
+
+Data flows: server components read the repository directly, and the client mutates through server actions in `lib/actions/*`. There is no client-side data store and no hash router.
 
 ## Domain model (`lib/types.ts`)
 
 - `Category`: id, name, slug, icon (`refrigerator | rice-cooker | tv | fan | blender | plug`), description
 - `Product`: id, name, slug, categoryId, brand, model, price (number, BDT), description, images (string[]), specs ({label, value}[]), availability (`in_stock | low_stock | out_of_stock`), published, featured, createdAt (ISO)
 - `ProductInput` = `Product` minus `id` and `createdAt`
+- `SessionUser`: email, role (`admin`)
 
 Rules:
+
 - Slugs must be unique. The repository enforces this, and the form generates the slug from the name.
 - Only `published` products appear on the storefront.
 - `featured` products show in the home page's Featured section.
 
 ## Data layer contract
 
-All reads and writes go through `lib/catalog-repository.ts`. UI components must never touch storage or a database client directly.
+Everything above `lib/data/` talks to interfaces only. Two boundaries:
 
-`catalogRepository` methods (all async):
-- `createProduct(input)`, `updateProduct(id, input)`
-- `patchProduct(id, { published?, featured?, availability? })`
-- `deleteProduct(id)`, `resetDemoData()` (prototype only)
+1. **Catalog** — `CatalogRepository` in `lib/data/catalog-repository.ts`, exported as `catalogRepository`.
+   - reads: `listCategories`, `getCategoryBySlug`, `listProducts`, `listPublishedProducts`, `getProductById`, `getPublishedProductBySlug`
+   - writes: `createProduct`, `updateProduct`, `patchProduct`, `deleteProduct`, `resetDemoData` (prototype only)
+2. **Auth** — functions in `lib/data/auth.ts`: `getSession`, `requireAdmin(returnTo?)`, `signIn(email, password)`, `signOut`.
 
-Reads come from `useCatalog()`, which uses `subscribeCatalog` and `getCatalogSnapshot`. Errors are thrown as `Error` with user-facing messages, and callers show them through the toast provider.
+Current implementation: in-memory map seeded from `lib/mock-data.ts`, kept on `globalThis`. Data resets when the dev server restarts. Auth is one demo account (`ADMIN_EMAIL` / `ADMIN_PASSWORD`, defaults `admin@shop.test` / `admin1234`) with an HMAC-signed cookie (`AUTH_SECRET`).
 
-## Supabase migration plan
+Rules:
+
+- Pages/actions never import a database client directly; only `lib/data/*` may.
+- Every server action calls `getSession()` first and returns `{ ok: false, error }` instead of throwing.
+- Actions call `revalidatePath('/', 'layout')` after a write so storefront and admin refresh.
+- UI code must not read or write cookies.
+
+## Auth flow
+
+```
+request /admin/*
+  └─ proxy.ts: no session cookie? → redirect /login?next=/admin/...
+       └─ app/admin/layout.tsx requireAdmin() → verifies signature + expiry
+            └─ server actions re-check the session (defence in depth)
+```
+
+## Supabase / MongoDB migration plan
 
 1. **Schema**
-   - `categories` (id uuid pk, name, slug unique, icon, description, sort_order)
-   - `products` (id uuid pk, name, slug unique, category_id fk, brand, model, price numeric, description, specs jsonb, availability text check, published bool, featured bool, created_at timestamptz default now(), updated_at)
-   - `product_images` (id, product_id fk on delete cascade, path, position). Alternatively, use a `text[]` column on products.
-2. **RLS**
-   - Public (`anon`) can SELECT categories, and can SELECT products only where `published = true`.
-   - Only authenticated admins can INSERT, UPDATE or DELETE. Gate this with an `admins` table or a `role` claim, not just "is authenticated".
-3. **Auth:** Supabase email + password for the owner only. Protect admin routes on the server (proxy or a layout check), not just in the client.
-4. **Storage:** a `product-images` bucket with public read and admin-only write. Replace the image URL field in `product-form.tsx` with an upload.
-5. **Code changes**
-   - Replace the method bodies in `catalog-repository.ts` with Supabase queries, keeping the same signatures.
-   - Replace `useCatalog` with SWR (or server components for the storefront) and remove the localStorage subscribe/snapshot code.
-   - Map snake_case columns to the camelCase `Product` type in one place, inside the repository.
-   - Delete `resetDemoData` and turn `mock-data.ts` into a seed SQL script.
-6. Keep validation (`product-validation.ts`) on the client, and add server-side checks: DB constraints plus server actions.
+   - `categories` (id, name, slug unique, icon, description, sort_order)
+   - `products` (id, name, slug unique, category_id, brand, model, price numeric, description, specs jsonb/embedded, availability, published, featured, created_at, updated_at)
+   - `product_images` (id, product_id fk cascade, path, position) or a `text[]` column
+2. **RLS / access rules**
+   - Public read: categories, and products where `published = true`.
+   - Admin write only. Gate on an `admins` table or a role claim, not just "authenticated".
+3. **Code changes**
+   - Write a second `CatalogRepository` implementation and change the export at the bottom of `lib/data/catalog-repository.ts`.
+   - Replace the bodies in `lib/data/auth.ts` (Supabase Auth / Mongo session collection). Keep the function signatures.
+   - Map snake_case columns to the camelCase `Product` type inside the repository only.
+   - Delete `resetDemoData` and turn `mock-data.ts` into a seed script.
+4. Protect admin routes server-side (proxy + layout check), never only in the client. Keep `lib/product-validation.ts` on the client and keep `validateProductInput` as the server-side guard.
+5. With Supabase, add Storage for images and swap the image URL field in `product-form.tsx` for an upload.
+
 
 ## Conventions
 
@@ -122,3 +168,12 @@ Reads come from `useCatalog()`, which uses `subscribeCatalog` and `getCatalogSna
 
 Cart, checkout, payments, customer accounts, reviews, and multi-language. Ask before adding any of them.
 
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -1,23 +1,21 @@
-'use client'
-
 import { ArrowRight } from 'lucide-react'
-import { useMemo } from 'react'
-import { useCatalog } from '@/hooks/use-catalog'
+import Link from 'next/link'
 import { CategoryGrid } from './category-grid'
 import { HeroSection } from './hero-section'
 import { ProductCard } from './product-card'
 import { AboutSection, ContactSection } from './visit-section'
+import { productsHref } from '@/lib/routes'
+import type { Category, Product } from '@/lib/types'
 
-export function HomePage() {
-  const { categories, publishedProducts, categoryById } = useCatalog()
+export function HomePage({ categories, products }: { categories: Category[]; products: Product[] }) {
+  const categoryById = new Map(categories.map((category) => [category.id, category]))
 
-  const counts = useMemo(() => {
-    const map = new Map<string, number>()
-    publishedProducts.forEach((p) => map.set(p.categoryId, (map.get(p.categoryId) ?? 0) + 1))
-    return map
-  }, [publishedProducts])
+  const counts = new Map<string, number>()
+  for (const product of products) {
+    counts.set(product.categoryId, (counts.get(product.categoryId) ?? 0) + 1)
+  }
 
-  const featured = useMemo(() => publishedProducts.filter((p) => p.featured).slice(0, 8), [publishedProducts])
+  const featured = products.filter((product) => product.featured).slice(0, 8)
 
   return (
     <>
@@ -32,10 +30,10 @@ export function HomePage() {
             </h2>
             <p className="text-base leading-relaxed text-muted-foreground">Models our customers ask about most.</p>
           </div>
-          <a href="#products" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+          <Link href={productsHref()} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
             View all products
             <ArrowRight className="size-4" aria-hidden="true" />
-          </a>
+          </Link>
         </div>
         {featured.length > 0 ? (
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -47,7 +45,11 @@ export function HomePage() {
           </ul>
         ) : (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            No featured products right now. <a href="#products" className="font-medium text-primary hover:underline">Browse the full catalog</a>.
+            No featured products right now.{' '}
+            <Link href={productsHref()} className="font-medium text-primary hover:underline">
+              Browse the full catalog
+            </Link>
+            .
           </p>
         )}
       </section>

@@ -1,29 +1,31 @@
 'use client'
 
 import { Pencil, Plus, Search, Star, Trash2, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import Link from 'next/link'
+import { useMemo, useState, useTransition } from 'react'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { ProductImage } from '@/components/shared/product-image'
 import { useToast } from '@/components/shared/toast-provider'
-import { Button, buttonVariants } from "@/components/ui/button"
-import { useCatalog } from '@/hooks/use-catalog'
-import { catalogRepository } from '@/lib/catalog-repository'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { deleteProductAction, patchProductAction, type ActionResult } from '@/lib/actions/catalog'
 import { availabilityLabel, availabilityOptions, formatTaka } from '@/lib/format'
-import type { Availability, Product } from '@/lib/types'
+import { adminRoutes } from '@/lib/routes'
+import type { Availability, Category, Product } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 type StatusFilter = 'all' | 'published' | 'draft' | 'featured' | 'out_of_stock'
 
-export function AdminProducts() {
-  const { products, categories, categoryById } = useCatalog()
+export function AdminProducts({ products, categories }: { products: Product[]; categories: Category[] }) {
   const { notify } = useToast()
+  const [isPending, startTransition] = useTransition()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
   const [categoryId, setCategoryId] = useState('all')
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null)
-  const [deleting, setDeleting] = useState(false)
 
+  const categoryById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const q = query.trim().toLowerCase()
+
   const filtered = useMemo(
     () =>
       products.filter((p) => {
@@ -40,21 +42,12 @@ export function AdminProducts() {
 
   const hasFilters = Boolean(q) || status !== 'all' || categoryId !== 'all'
 
-  async function run(action: () => Promise<unknown>, success: string) {
-    try {
-      await action()
-      notify(success)
-    } catch (error) {
-      notify(error instanceof Error ? error.message : 'Something went wrong.', 'error')
-    }
-  }
-
-  async function confirmDelete() {
-    if (!pendingDelete) return
-    setDeleting(true)
-    await run(() => catalogRepository.deleteProduct(pendingDelete.id), `Deleted “${pendingDelete.name}”.`)
-    setDeleting(false)
-    setPendingDelete(null)
+  function run(action: () => Promise<ActionResult>, success: string) {
+    startTransition(async () => {
+      const result = await action()
+      notify(result.ok ? success : result.error, result.ok ? 'success' : 'error')
+      if (result.ok) setPendingDelete(null)
+    })
   }
 
   return (
@@ -66,10 +59,10 @@ export function AdminProducts() {
             {products.length} total · changes appear on the public site immediately.
           </p>
         </div>
-        <a href="#admin/new" className={cn(buttonVariants(), "h-11 gap-2 px-4")}>
+        <Link href={adminRoutes.newProduct} className={cn(buttonVariants(), 'h-11 gap-2 px-4')}>
           <Plus aria-hidden="true" />
           Add product
-        </a>
+        </Link>
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
@@ -78,7 +71,7 @@ export function AdminProducts() {
             Search products
           </label>
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
           />
           <input
@@ -87,7 +80,7 @@ export function AdminProducts() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name, brand, model…"
-            className="h-11 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-base sm:text-sm"
+            className="h-11 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-base sm:text-sm"
           />
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex">
@@ -148,10 +141,10 @@ export function AdminProducts() {
           <p className="text-sm text-muted-foreground">Try a different search or reset the filters.</p>
         </div>
       ) : (
-        <ul className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
+        <ul className="flex flex-col overflow-hidden rounded-xl border border-border bg-card" aria-busy={isPending}>
           <li
             aria-hidden="true"
-            className="hidden grid-cols-[3.5rem_minmax(0,1fr)_8rem_9rem_7rem_7.5rem] items-center gap-4 border-b border-border bg-muted/60 px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground lg:grid"
+            className="hidden grid-cols-[3.5rem_minmax(0,1fr)_8rem_9rem_7rem_7.5rem] items-center gap-4 border-b border-border bg-muted/60 px-4 py-2.5 text-xs font-medium tracking-wider text-muted-foreground uppercase lg:grid"
           >
             <span />
             <span>Product</span>
@@ -186,10 +179,10 @@ export function AdminProducts() {
                 <select
                   id={`avail-${product.id}`}
                   value={product.availability}
+                  disabled={isPending}
                   onChange={(e) =>
                     run(
-                      () =>
-                        catalogRepository.patchProduct(product.id, { availability: e.target.value as Availability }),
+                      () => patchProductAction(product.id, { availability: e.target.value as Availability }),
                       `${product.name} marked ${availabilityLabel[e.target.value as Availability].toLowerCase()}.`,
                     )
                   }
@@ -214,9 +207,10 @@ export function AdminProducts() {
                   role="switch"
                   aria-checked={product.published}
                   aria-label={`Published: ${product.name}`}
+                  disabled={isPending}
                   onClick={() =>
                     run(
-                      () => catalogRepository.patchProduct(product.id, { published: !product.published }),
+                      () => patchProductAction(product.id, { published: !product.published }),
                       product.published ? `${product.name} moved to drafts.` : `${product.name} is now live.`,
                     )
                   }
@@ -239,29 +233,27 @@ export function AdminProducts() {
                 <button
                   type="button"
                   aria-pressed={product.featured}
+                  disabled={isPending}
                   onClick={() =>
                     run(
-                      () => catalogRepository.patchProduct(product.id, { featured: !product.featured }),
+                      () => patchProductAction(product.id, { featured: !product.featured }),
                       product.featured ? `${product.name} removed from featured.` : `${product.name} is now featured.`,
                     )
                   }
                   className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
-                  <Star
-                    className={cn('size-4', product.featured && 'fill-warning text-warning')}
-                    aria-hidden="true"
-                  />
+                  <Star className={cn('size-4', product.featured && 'fill-warning text-warning')} aria-hidden="true" />
                   <span className="sr-only">
                     {product.featured ? 'Remove from featured' : 'Mark as featured'}: {product.name}
                   </span>
                 </button>
-                <a
-                  href={`#admin/edit/${encodeURIComponent(product.id)}`}
+                <Link
+                  href={adminRoutes.editProduct(product.id)}
                   className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   <Pencil className="size-4" aria-hidden="true" />
                   <span className="sr-only">Edit {product.name}</span>
-                </a>
+                </Link>
                 <button
                   type="button"
                   onClick={() => setPendingDelete(product)}
@@ -285,8 +277,11 @@ export function AdminProducts() {
             : ''
         }
         confirmLabel="Delete product"
-        pending={deleting}
-        onConfirm={confirmDelete}
+        pending={isPending}
+        onConfirm={() => {
+          if (!pendingDelete) return
+          run(() => deleteProductAction(pendingDelete.id), `Deleted “${pendingDelete.name}”.`)
+        }}
         onCancel={() => setPendingDelete(null)}
       />
     </div>

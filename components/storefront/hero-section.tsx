@@ -1,4 +1,6 @@
 import { ArrowRight, BadgeCheck, HandHelping, MapPin, Phone, Store } from 'lucide-react'
+import Link from 'next/link'
+import { homeSectionHref, productsHref } from '@/lib/routes'
 import { shopConfig } from '@/lib/shop-config'
 
 export function HeroSection() {
@@ -18,20 +20,20 @@ export function HeroSection() {
             whether it&apos;s on the shelf before you visit.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <a
-              href="#products"
+            <Link
+              href={productsHref()}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90 active:translate-y-px"
             >
               Explore Products
               <ArrowRight className="size-4" aria-hidden="true" />
-            </a>
-            <a
-              href="#contact"
+            </Link>
+            <Link
+              href={homeSectionHref('contact')}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-border bg-card px-6 text-base font-medium transition-colors hover:bg-muted active:translate-y-px"
             >
               <Phone className="size-4" aria-hidden="true" />
               Contact Shop
-            </a>
+            </Link>
           </div>
           <ul className="flex flex-wrap gap-x-6 gap-y-2 pt-2 text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
@@ -63,9 +65,9 @@ export function HeroSection() {
                 <span className="text-xs text-muted-foreground">Open today</span>
                 <span className="text-sm font-semibold">{shopConfig.hours[0].time}</span>
               </div>
-              <a href="#contact" className="text-sm font-medium text-primary hover:underline">
+              <Link href={homeSectionHref('contact')} className="text-sm font-medium text-primary hover:underline">
                 Visit us
-              </a>
+              </Link>
             </div>
           </div>
         </div>

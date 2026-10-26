@@ -1,45 +1,22 @@
-'use client'
-
 import { ArrowRight, MapPin, MessageCircle, Phone } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import { AvailabilityBadge } from '@/components/shared/availability-badge'
-import { ProductImage } from '@/components/shared/product-image'
-import { useCatalog } from '@/hooks/use-catalog'
-import { productsHref } from '@/hooks/use-hash-route'
-import { formatTaka } from '@/lib/format'
-import { shopConfig, whatsappLink } from '@/lib/shop-config'
-import { cn } from '@/lib/utils'
 import { ProductCard } from './product-card'
+import { ProductGallery } from './product-gallery'
+import { formatTaka } from '@/lib/format'
+import { homeSectionHref, productsHref } from '@/lib/routes'
+import { shopConfig, whatsappLink } from '@/lib/shop-config'
+import type { Category, Product } from '@/lib/types'
 
-export function ProductDetailPage({ slug }: { slug: string }) {
-  const { publishedProducts, categoryById } = useCatalog()
-  const product = publishedProducts.find((p) => p.slug === slug)
-  const [activeIndex, setActiveIndex] = useState(0)
-
-  const related = useMemo(
-    () =>
-      product
-        ? publishedProducts.filter((p) => p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4)
-        : [],
-    [product, publishedProducts],
-  )
-
-  if (!product) {
-    return (
-      <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4 py-24 text-center">
-        <h1 className="text-2xl font-semibold">Product not found</h1>
-        <p className="text-base leading-relaxed text-muted-foreground">
-          This product may no longer be listed. Browse the catalog or call the shop to ask about it.
-        </p>
-        <a href="#products" className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          Browse products
-        </a>
-      </div>
-    )
-  }
-
-  const category = categoryById.get(product.categoryId)
-  const safeIndex = Math.min(activeIndex, product.images.length - 1)
+export function ProductDetailPage({
+  product,
+  category,
+  related,
+}: {
+  product: Product
+  category?: Category
+  related: Product[]
+}) {
   const enquiry = `Hello ${shopConfig.name}, is the ${product.name}${product.model ? ` (${product.model})` : ''} available? Listed at ${formatTaka(product.price)}.`
 
   return (
@@ -47,17 +24,17 @@ export function ProductDetailPage({ slug }: { slug: string }) {
       <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground">
         <ol className="flex flex-wrap items-center gap-1.5">
           <li>
-            <a href="#" className="hover:text-foreground">
+            <Link href="/" className="hover:text-foreground">
               Home
-            </a>
+            </Link>
           </li>
           <li aria-hidden="true">/</li>
           {category ? (
             <>
               <li>
-                <a href={productsHref({ category: category.slug })} className="hover:text-foreground">
+                <Link href={productsHref({ category: category.slug })} className="hover:text-foreground">
                   {category.name}
-                </a>
+                </Link>
               </li>
               <li aria-hidden="true">/</li>
             </>
@@ -69,35 +46,8 @@ export function ProductDetailPage({ slug }: { slug: string }) {
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
-        <div className="flex flex-col gap-3 lg:col-span-7">
-          <ProductImage
-            key={product.images[safeIndex]}
-            src={product.images[safeIndex]}
-            alt={`${product.name}, image ${safeIndex + 1} of ${product.images.length}`}
-            className="aspect-square rounded-2xl border border-border sm:aspect-[4/3]"
-            imgClassName="p-6 sm:p-10"
-            eager
-          />
-          {product.images.length > 1 ? (
-            <ul className="flex gap-3" aria-label="Product images">
-              {product.images.map((src, index) => (
-                <li key={`${src}-${index}`}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveIndex(index)}
-                    aria-pressed={index === safeIndex}
-                    className={cn(
-                      'block overflow-hidden rounded-lg border-2 transition-colors',
-                      index === safeIndex ? 'border-primary' : 'border-border hover:border-muted-foreground/40',
-                    )}
-                  >
-                    <ProductImage src={src} alt="" className="size-20" imgClassName="p-1.5" />
-                    <span className="sr-only">Show image {index + 1}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+        <div className="lg:col-span-7">
+          <ProductGallery images={product.images} name={product.name} />
         </div>
 
         <div className="flex flex-col gap-6 lg:col-span-5">
@@ -140,10 +90,13 @@ export function ProductDetailPage({ slug }: { slug: string }) {
                 Ask on WhatsApp
               </a>
             </div>
-            <a href="#contact" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+            <Link
+              href={homeSectionHref('contact')}
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            >
               <MapPin className="size-4" aria-hidden="true" />
               {shopConfig.address.line1} · See hours and directions
-            </a>
+            </Link>
           </div>
 
           {product.specs.length > 0 ? (
@@ -171,16 +124,19 @@ export function ProductDetailPage({ slug }: { slug: string }) {
               More {category?.name.toLowerCase() ?? 'products'}
             </h2>
             {category ? (
-              <a href={productsHref({ category: category.slug })} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+              <Link
+                href={productsHref({ category: category.slug })}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
                 View all
                 <ArrowRight className="size-4" aria-hidden="true" />
-              </a>
+              </Link>
             ) : null}
           </div>
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((p) => (
-              <li key={p.id}>
-                <ProductCard product={p} category={category} />
+            {related.map((item) => (
+              <li key={item.id}>
+                <ProductCard product={item} category={category} />
               </li>
             ))}
           </ul>

@@ -38,3 +38,8 @@ export interface CatalogState {
   products: Product[]
   categories: Category[]
 }
+
+export interface SessionUser {
+  email: string
+  role: 'admin'
+}
