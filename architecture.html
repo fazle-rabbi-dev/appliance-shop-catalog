@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electronics Shop - App Architecture</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; color: #333; }
+    h1 { text-align: center; margin-bottom: 30px; color: #1a1a2e; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    .section { background: white; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .section h2 { margin-top: 0; color: #1a1a2e; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; }
+    .section h3 { margin-top: 20px; color: #333; font-size: 1.1em; }
+    
+    .architecture-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    
+    .layer { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; position: relative; }
+    .layer-title { font-weight: bold; font-size: 1.1em; margin-bottom: 15px; color: #1a1a2e; text-align: center; }
+    .layer-content { display: flex; flex-direction: column; gap: 10px; }
+    
+    .component { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 12px; font-size: 0.9em; position: relative; }
+    .component strong { display: block; color: #0d6efd; margin-bottom: 5px; }
+    .component small { color: #6c757d; font-size: 0.8em; }
+    
+    .data-layer { background: #fff8e1; border-color: #ffc107; }
+    .auth-layer { background: #e8f5e9; border-color: #4caf50; }
+    
+    .flow-line { position: absolute; height: 2px; background: #6c757d; top: 50%; }
+    .flow-label { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); background: #6c757d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; white-space: nowrap; }
+    
+    .routes-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .routes-table th, .routes-table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+    .routes-table th { background: #f8f9fa; font-weight: 600; color: #333; }
+    .routes-table code { background: #f8f9fa; padding: 2px 6px; border-radius: 4px; color: #d63384; }
+    
+    .stack-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .tech { background: #0d6efd; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.85em; font-weight: 500; }
+    
+    .domain-model { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; }
+    .domain-card { background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 12px; }
+    .domain-card h4 { margin: 0 0 10px 0; font-size: 1em; color: #1a1a2e; }
+    .domain-card ul { margin: 0; padding-left: 20px; font-size: 0.85em; }
+    
+    .code-block { background: #1a1a2e; color: #e8e8e8; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 0.85em; }
+    .code-block code { font-family: 'Consolas', 'Monaco', monospace; }
+    
+    .auth-flow { display: flex; flex-direction: column; gap: 15px; }
+    .auth-step { background: white; border-left: 4px solid #dc3545; padding: 15px 20px; margin-left: 20px; position: relative; }
+    .auth-step::before { content: '→'; position: absolute; left: -24px; top: 15px; color: #dc3545; }
+    .auth-step strong { color: #333; }
+    .auth-step .note { color: #6c757d; font-size: 0.85em; margin-top: 5px; display: block; }
+    
+    .boundary { background: #e3f2fd; border: 2px dashed #2196f3; border-radius: 8px; padding: 15px; margin: 10px 0; }
+    .boundary h4 { margin-top: 0; color: #1565c0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Electronics Shop - App Architecture</h1>
+
+    <div class="section">
+      <h2>Tech Stack</h2>
+      <div class="stack-box">
+        <span class="tech">Next.js 16 (App Router)</span>
+        <span class="tech">React 19</span>
+        <span class="tech">TypeScript 5.7</span>
+        <span class="tech">Tailwind CSS v4</span>
+        <span class="tech">shadcn/ui</span>
+        <span class="tech">Bun (Package Manager)</span>
+        <span class="tech">MongoDB + Mongoose</span>
+      </div>
+      <div style="margin-top: 15px;">
+        <h3>Planned Migration: Supabase</h3>
+        <p>Postgres, Auth, Storage, RLS — see <code>AGENTS.md</code> for migration plan.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Project Structure</h2>
+      <div class="code-block">
+        <code>
+app/
+├── layout.tsx              Fonts, metadata, ToastProvider
+├── globals.css             Design tokens (colors, radius, fonts)
+├── manifest.ts             Web app manifest
+├── robots.ts               robots.txt (blocks /admin, /login)
+├── sitemap.ts              Dynamic sitemap from MongoDB
+├── proxy.ts                First-line auth guard for /admin/*
+├── (storefront)/
+│   ├── layout.tsx          SiteHeader + SiteFooter + skip link
+│   ├── page.tsx            Home
+│   ├── products/
+│   │   ├── page.tsx        Listing (?category=&q=)
+│   │   ├── loading.tsx     Suspense loading shell
+│   │   └── [slug]/
+│   │       └── page.tsx    Detail
+├── login/page.tsx          Staff sign in
+└── admin/
+    ├── layout.tsx          requireAdmin() + AdminShell
+    ├── page.tsx            Dashboard
+    ├── products/
+    │   ├── page.tsx        Product list
+    │   ├── new/page.tsx
+    │   └── [id]/
+    │       └── edit/page.tsx
+    └── categories/
+        ├── page.tsx
+        ├── new/page.tsx
+        └── [id]/
+            └── edit/page.tsx
+
+lib/
+├── types.ts                Domain types (source of truth)
+├── routes.ts               URL builders
+├── auth-cookie.ts          Session cookie name
+├── mock-data.ts            Seed categories and products
+├── data/
+│   ├── catalog-repository.ts  Interface + Mongoose implementation
+│   ├── mongoose.ts         Cached connection (HMR-safe)
+│   ├── models.ts           Mongoose schemas
+│   ├── seed.ts             Fills the DB from mock-data
+│   └── auth.ts             getSession, requireAdmin, signIn, signOut
+├── actions/
+│   ├── catalog.ts          Product CRUD server actions
+│   ├── categories.ts       Category CRUD server actions
+│   └── auth.ts             Auth server actions
+├── product-validation.ts   Form + server-side validation
+├── category-validation.ts  Category form validation
+├── shop-config.ts          Shop name, address, phone, hours
+├── site.ts                 Public origin for metadata
+├── cache-tags.ts           CATALOG_TAG for cache invalidation
+├── format.ts               Price (৳), dates, slugify
+└── utils.ts                cn()
+
+components/
+├── auth/
+│   └── login-form.tsx
+├── storefront/
+│   ├── site-header, site-nav, hero-section
+│   ├── category-grid, product-card
+│   ├── home-page, products-page, product-detail-page
+│   ├── product-gallery, visit-section, site-footer
+├── admin/
+│   ├── admin-shell, admin-products, product-form
+│   ├── admin-categories, category-form
+│   └── reset-demo-data
+├── shared/
+│   ├── product-image, availability-badge
+│   ├── category-icon, toast-provider
+│   └── confirm-dialog
+└── ui/                     shadcn components
+        </code>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Routing (App Router)</h2>
+      <table class="routes-table">
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Page</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/</code> <code>/#categories</code> <code>/#about</code> <code>/#contact</code></td>
+            <td>Home (anchors scroll)</td>
+          </tr>
+          <tr>
+            <td><code>/products?category=&q=</code></td>
+            <td>Product listing</td>
+          </tr>
+          <tr>
+            <td><code>/products/&lt;slug&gt;</code></td>
+            <td>Product detail</td>
+          </tr>
+          <tr>
+            <td><code>/login?next=</code></td>
+            <td>Staff sign in</td>
+          </tr>
+          <tr>
+            <td><code>/admin</code></td>
+            <td>Admin dashboard</td>
+          </tr>
+          <tr>
+            <td><code>/admin/products</code></td>
+            <td>Admin product list</td>
+          </tr>
+          <tr>
+            <td><code>/admin/products/new</code></td>
+            <td>Create product</td>
+          </tr>
+          <tr>
+            <td><code>/admin/products/&lt;id&gt;/edit</code></td>
+            <td>Edit product</td>
+          </tr>
+          <tr>
+            <td><code>/admin/categories</code></td>
+            <td>Admin category list</td>
+          </tr>
+          <tr>
+            <td><code>/admin/categories/new</code></td>
+            <td>Create category</td>
+          </tr>
+          <tr>
+            <td><code>/admin/categories/&lt;id&gt;/edit</code></td>
+            <td>Edit category</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Architecture Layers</h2>
+      <div class="architecture-grid">
+        <div class="layer">
+          <div class="layer-title">Storefront (Public)</div>
+          <div class="layer-content">
+            <div class="component">
+              <strong>app/(storefront)/</strong>
+              <small>Pages: home, products, product detail</small>
+            </div>
+            <div class="component">
+              <strong>components/storefront/</strong>
+              <small>Site header, footer, category grid, product cards</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer" style="background: #f0f0f0;">
+          <div class="layer-title">Authentication</div>
+          <div class="layer-content">
+            <div class="component">
+              <strong>proxy.ts</strong>
+              <small>First-line defense for /admin/* routes</small>
+            </div>
+            <div class="component">
+              <strong>app/login/page.tsx</strong>
+              <small>Staff sign-in form</small>
+            </div>
+            <div class="component auth-layer">
+              <strong>lib/data/auth.ts</strong>
+              <small>Session management, HMAC-signed cookies</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer" style="background: #fff0f0;">
+          <div class="layer-title">Admin Dashboard</div>
+          <div class="layer-content">
+            <div class="component">
+              <strong>app/admin/</strong>
+              <small>Pages: dashboard, products, categories</small>
+            </div>
+            <div class="component">
+              <strong>components/admin/</strong>
+              <small>Product forms, category management</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer data-layer">
+          <div class="layer-title">Data Layer</div>
+          <div class="layer-content">
+            <div class="component">
+              <strong>lib/data/catalog-repository.ts</strong>
+              <small>CatalogRepository interface + Mongoose impl</small>
+            </div>
+            <div class="component">
+              <strong>lib/actions/catalog.ts</strong>
+              <small>Server actions for CRUD operations</small>
+            </div>
+            <div class="component">
+              <strong>lib/data/mongoose.ts</strong>
+              <small>Cached connection, HMR-safe</small>
+            </div>
+            <div class="component">
+              <strong>lib/data/models.ts</strong>
+              <small>Mongoose schemas: Category, Product</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3>Data Flow</h3>
+        <p>Server components read the repository directly; client components mutate through server actions in <code>lib/actions/</code>. There is no client-side data store.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Domain Model</h2>
+      <div class="domain-model">
+        <div class="domain-card">
+          <h4>Category</h4>
+          <ul>
+            <li>id, name, slug (unique)</li>
+            <li>icon (refrigerator | tv | fan | etc.)</li>
+            <li>description, sortOrder</li>
+          </ul>
+        </div>
+        <div class="domain-card">
+          <h4>Product</h4>
+          <ul>
+            <li>id, name, slug (unique)</li>
+            <li>categoryId, brand, model</li>
+            <li>price (BDT), description</li>
+            <li>images: {url, publicId}</li>
+            <li>specs: {label, value}[]</li>
+            <li>availability, published, featured</li>
+            <li>createdAt (ISO)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="boundary" style="margin-top: 20px;">
+        <h4>Business Rules</h4>
+        <ul style="margin: 0 0 0 20px; padding: 0;">
+          <li>Slugs must be unique for products and categories</li>
+          <li>Category can't be deleted if products reference it</li>
+          <li>Only <code>published</code> products appear on storefront</li>
+          <li><code>featured</code> products show on home page's Featured section</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Authentication Flow</h2>
+      <div class="auth-flow">
+        <div class="auth-step">
+          <strong>1. Request to /admin/*</strong>
+          <span class="note">No session cookie found</span>
+        </div>
+        <div class="auth-step">
+          <strong>2. proxy.ts intercepts</strong>
+          <span class="note">Redirects to <code>/login?next=/admin/...</code></span>
+        </div>
+        <div class="auth-step">
+          <strong>3. Staff signs in</strong>
+          <span class="note">POST to server action, verifies <code>ADMIN_USERNAME</code> + <code>ADMIN_PASSWORD</code></span>
+        </div>
+        <div class="auth-step">
+          <strong>4. HMAC-signed cookie created</strong>
+          <span class="note">Session expires in 7 days</span>
+        </div>
+        <div class="auth-step">
+          <strong>5. Redirect to admin route</strong>
+          <span class="note">app/admin/layout.tsx calls <code>requireAdmin()</code> to verify</span>
+        </div>
+        <div class="auth-step">
+          <strong>6. Server actions re-check session</strong>
+          <span class="note">Defense in depth — every action calls <code>getSession()</code></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Server Actions Pattern</h2>
+      <div class="boundary">
+        <h4>Action Structure</h4>
+        <ul style="margin: 0 0 0 20px; padding: 0;">
+          <li>Call <code>getSession()</code> first, return <code>{ ok: false, error }</code> on failure</li>
+          <li>Validate input (client + server-side)</li>
+          <li>Call repository method</li>
+          <li><code>updateTag(CATALOG_TAG)</code> to invalidate cache</li>
+          <li>Admin pages call <code>router.refresh()</code> after mutations</li>
+        </ul>
+      </div>
+      <p style="margin-top: 15px;">Server actions are the <strong>only</strong> way the UI mutates data. They are the swap point for Supabase/Mongo: the UI calls these, not a client.</p>
+    </div>
+
+    <div class="section">
+      <h2>Data Layer Contract</h2>
+      <div class="boundary">
+        <h4>CatalogRepository Interface</h4>
+        <strong>Reads:</strong>
+        <ul style="margin: 0 0 0 20px; padding: 0;">
+          <li><code>listCategories()</code>, <code>getCategoryBySlug()</code>, <code>getCategoryById()</code></li>
+          <li><code>listProducts()</code>, <code>listPublishedProducts()</code></li>
+          <li><code>getProductById()</code>, <code>getPublishedProductBySlug()</code></li>
+        </ul>
+        <strong>Writes:</strong>
+        <ul style="margin: 0 0 0 20px; padding: 0;">
+          <li><code>createProduct()</code>, <code>updateProduct()</code>, <code>patchProduct()</code>, <code>deleteProduct()</code></li>
+          <li><code>createCategory()</code>, <code>updateCategory()</code>, <code>deleteCategory()</code></li>
+          <li><code>resetDemoData()</code> (prototype only)</li>
+        </ul>
+      </div>
+      
+      <h3>Current Implementation: MongoDB + Mongoose</h3>
+      <ul style="margin-top: 15px;">
+        <li>Collections: <code>categories</code>, <code>products</code></li>
+        <li>String <code>_id</code>s (seed categories: <code>cat-*</code>, products: UUID)</li>
+        <li>Products have <code>images[]</code> and <code>specs[]</code> embedded arrays</li>
+        <li><code>slug</code> has unique index on both collections</li>
+        <li><code>createdAt</code>/<code>updatedAt</code> from Mongoose timestamps</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Caching Strategy</h2>
+      <div class="boundary">
+        <h4>Cache Annotations</h4>
+        <ul style="margin: 0 0 0 20px; padding: 0;">
+          <li><code>'use cache'</code> on reads</li>
+          <li><code>cacheLife('hours')</code> for TTL</li>
+          <li><code>cacheTag(CATALOG_TAG)</code> for invalidation</li>
+          <li><code>updateTag(CATALOG_TAG)</code> after writes</li>
+        </ul>
+      </div>
+      <p style="margin-top: 15px;">Storefront pages are partially prerendered (static shell + streamed dynamic holes). Runtime data must sit inside <code>&lt;Suspense&gt;</code> (see <code>loading.tsx</code> under <code>products</code>).</p>
+    </div>
+
+    <div class="section">
+      <h2>Conventions</h2>
+      <ul style="margin-top: 15px;">
+        <li><strong>Split UI into small components</strong> — Pages compose them</li>
+        <li><strong>Semantic design tokens only</strong> — <code>bg-background</code>, <code>text-foreground</code>, <code>bg-primary</code></li>
+        <li><strong>No raw colors</strong> like <code>bg-white</code></li>
+        <li><strong>Dark mode</strong> — Both <code>:root</code> and <code>.dark</code> define same tokens in <code>app/globals.css</code></li>
+        <li><strong>Prefer flex and gap</strong> — No <code>space-*</code> classes</li>
+        <li><strong>Accessibility</strong> — Semantic landmarks, labels, alt text</li>
+        <li><strong>UI copy is Bengali</strong> — Product data stays as entered (English)</li>
+        <li><strong>Use <code>formatTaka</code></strong> for prices (৳)</li>
+        <li><strong>Use <code>formatDate</code></strong> with Bengali month names</li>
+        <li><strong>Shop details</strong> live only in <code>lib/shop-config.ts</code></li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Key Commands</h2>
+      <div class="code-block">
+        <code>
+# Start dev server
+bun run dev
+
+# Build for production
+bun run build
+
+# Run type check
+bunx tsc --noEmit
+
+# Seed MongoDB with mock data
+bun run seed
+        </code>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Supabase Migration (Optional)</h2>
+      <p>See <code>AGENTS.md</code> for details. Summary:</p>
+      <ol style="margin-top: 15px;">
+        <li><strong>Schema</strong> — categories, products, product_images with RLS</li>
+        <li><strong>Write second CatalogRepository</strong> — Implement the same interface</li>
+        <li><strong>Swap export</strong> in <code>lib/data/catalog-repository.ts</code></li>
+        <li><strong>Replace auth implementation</strong> in <code>lib/data/auth.ts</code></li>
+        <li><strong>Drop Mongo files</strong> — <code>mongoose.ts</code>, <code>models.ts</code></li>
+        <li><strong>Map snake_case</strong> columns to camelCase inside repository only</li>
+      </ol>
+    </div>
+  </div>
+</body>
+</html>
