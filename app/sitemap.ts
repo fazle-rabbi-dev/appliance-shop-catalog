@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { catalogRepository } from "@/lib/data/catalog-repository";
 import { productHref, productsHref } from "@/lib/routes";
 import { siteUrl } from "@/lib/site";
 
-// The catalog lives in MongoDB, so build the sitemap per request, not at build time.
-export const dynamic = "force-dynamic";
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Always build per request; the underlying catalog reads are cached + tagged.
+  await connection()
 	const [categories, products] = await Promise.all([
 		catalogRepository.listCategories(),
 		catalogRepository.listPublishedProducts(),

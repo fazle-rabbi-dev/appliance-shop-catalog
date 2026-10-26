@@ -2,6 +2,7 @@
 
 import { Pencil, Plus, Search, Star, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useMemo, useState, useTransition } from 'react'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { ProductImage } from '@/components/shared/product-image'
@@ -17,6 +18,7 @@ type StatusFilter = 'all' | 'published' | 'draft' | 'featured' | 'out_of_stock'
 
 export function AdminProducts({ products, categories }: { products: Product[]; categories: Category[] }) {
   const { notify } = useToast()
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
@@ -46,7 +48,10 @@ export function AdminProducts({ products, categories }: { products: Product[]; c
     startTransition(async () => {
       const result = await action()
       notify(result.ok ? success : result.error, result.ok ? 'success' : 'error')
-      if (result.ok) setPendingDelete(null)
+      if (result.ok) {
+        setPendingDelete(null)
+        router.refresh()
+      }
     })
   }
 

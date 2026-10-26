@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
+import { CATALOG_TAG } from '@/lib/cache-tags'
 import { getSession } from '@/lib/data/auth'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 import { validateProductInput } from '@/lib/product-validation'
@@ -21,7 +22,7 @@ function message(error: unknown, fallback: string) {
 }
 
 function refreshCatalog() {
-  revalidatePath('/', 'layout')
+  updateTag(CATALOG_TAG)
 }
 
 export async function saveProductAction(id: string | null, input: ProductInput): Promise<ProductActionResult> {

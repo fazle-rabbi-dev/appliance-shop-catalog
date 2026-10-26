@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
+import { CATALOG_TAG } from '@/lib/cache-tags'
 import { validateCategoryInput } from '@/lib/category-validation'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 import { getSession } from '@/lib/data/auth'
@@ -15,7 +16,7 @@ function message(error: unknown, fallback: string) {
 }
 
 function refreshCatalog() {
-  revalidatePath('/', 'layout')
+  updateTag(CATALOG_TAG)
 }
 
 export async function saveCategoryAction(

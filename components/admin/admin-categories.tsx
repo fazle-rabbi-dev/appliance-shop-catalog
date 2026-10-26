@@ -2,6 +2,7 @@
 
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { CategoryIcon } from '@/components/shared/category-icon'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
@@ -20,6 +21,7 @@ export function AdminCategories({
   counts: Record<string, number>
 }) {
   const { notify } = useToast()
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [pendingDelete, setPendingDelete] = useState<Category | null>(null)
 
@@ -35,7 +37,10 @@ export function AdminCategories({
         result.ok ? `“${target.name}” মুছে ফেলা হয়েছে।` : result.error,
         result.ok ? 'success' : 'error',
       )
-      if (result.ok) setPendingDelete(null)
+      if (result.ok) {
+        setPendingDelete(null)
+        router.refresh()
+      }
     })
   }
 

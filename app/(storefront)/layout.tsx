@@ -2,9 +2,6 @@ import { SiteHeader } from '@/components/storefront/site-header'
 import { SiteFooter } from '@/components/storefront/site-footer'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 
-// Catalog comes from MongoDB, so storefront pages are rendered per request.
-export const dynamic = 'force-dynamic'
-
 export default async function StorefrontLayout({
   children,
 }: {

@@ -1,9 +1,18 @@
+import { cacheLife } from 'next/cache'
 import Link from 'next/link'
 import { productsHref } from '@/lib/routes'
 import { shopConfig } from '@/lib/shop-config'
 import type { Category } from '@/lib/types'
 
-export function SiteFooter({ categories }: { categories: Category[] }) {
+async function currentYear() {
+  'use cache'
+  cacheLife('days')
+  return new Date().getFullYear()
+}
+
+export async function SiteFooter({ categories }: { categories: Category[] }) {
+  const year = await currentYear()
+
   return (
     <footer className="border-t border-border">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
@@ -42,7 +51,7 @@ export function SiteFooter({ categories }: { categories: Category[] }) {
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>
-            © {new Date().getFullYear()} {shopConfig.name}। ডেমো ওয়েবসাইট।
+            © {year} {shopConfig.name}। ডেমো ওয়েবসাইট।
           </p>
           <Link href="/login" className="hover:text-foreground">
             স্টাফ লগইন

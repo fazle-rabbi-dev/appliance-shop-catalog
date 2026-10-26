@@ -1,3 +1,5 @@
+import { cacheLife, cacheTag } from 'next/cache'
+import { CATALOG_TAG } from '@/lib/cache-tags'
 import { connectToDatabase } from '@/lib/data/mongoose'
 import { CategoryModel, ProductModel, type CategoryDoc, type ProductDoc } from '@/lib/data/models'
 import { seedDatabase } from '@/lib/data/seed'
@@ -102,18 +104,27 @@ async function assertUniqueSlug(slug: string, ignoreId?: string) {
 
 const mongoCatalogRepository: CatalogRepository = {
   async listCategories() {
+    'use cache'
+    cacheLife('hours')
+    cacheTag(CATALOG_TAG)
     await connectToDatabase()
     const docs = await CategoryModel.find().sort({ sortOrder: 1 }).lean<LeanCategory[]>()
     return docs.map(toCategory)
   },
 
   async getCategoryBySlug(slug) {
+    'use cache'
+    cacheLife('hours')
+    cacheTag(CATALOG_TAG)
     await connectToDatabase()
     const doc = await CategoryModel.findOne({ slug }).lean<LeanCategory | null>()
     return doc ? toCategory(doc) : null
   },
 
   async getCategoryById(id) {
+    'use cache'
+    cacheLife('hours')
+    cacheTag(CATALOG_TAG)
     await connectToDatabase()
     const doc = await CategoryModel.findById(id).lean<LeanCategory | null>()
     return doc ? toCategory(doc) : null
@@ -162,12 +173,18 @@ const mongoCatalogRepository: CatalogRepository = {
   },
 
   async listProducts() {
+    'use cache'
+    cacheLife('hours')
+    cacheTag(CATALOG_TAG)
     await connectToDatabase()
     const docs = await ProductModel.find().sort({ createdAt: -1 }).lean<LeanProduct[]>()
     return docs.map(toProduct)
   },
 
   async listPublishedProducts() {
+    'use cache'
+    cacheLife('hours')
+    cacheTag(CATALOG_TAG)
     await connectToDatabase()
     const docs = await ProductModel.find({ published: true })
       .sort({ createdAt: -1 })
@@ -176,12 +193,18 @@ const mongoCatalogRepository: CatalogRepository = {
   },
 
   async getProductById(id) {
+    'use cache'
+    cacheLife('hours')
+    cacheTag(CATALOG_TAG)
     await connectToDatabase()
     const doc = await ProductModel.findById(id).lean<LeanProduct | null>()
     return doc ? toProduct(doc) : null
   },
 
   async getPublishedProductBySlug(slug) {
+    'use cache'
+    cacheLife('hours')
+    cacheTag(CATALOG_TAG)
     await connectToDatabase()
     const doc = await ProductModel.findOne({ slug, published: true }).lean<LeanProduct | null>()
     return doc ? toProduct(doc) : null

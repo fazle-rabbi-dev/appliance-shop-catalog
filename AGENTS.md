@@ -50,7 +50,7 @@ app/
 proxy.ts                  First-line auth guard for /admin/*
 components/
   auth/login-form.tsx
-  storefront/             site-header, hero-section, category-grid, product-card,
+  storefront/             site-header, site-nav, hero-section, category-grid, product-card,
                           home-page, products-page, product-detail-page,
                           product-gallery, visit-section, site-footer
   admin/                  admin-shell, admin-products, product-form,
@@ -77,6 +77,7 @@ lib/
   category-validation.ts  Category form + server-side validation
   shop-config.ts          Shop name, address, phone, hours, socials
   site.ts                 Public origin (NEXT_PUBLIC_SITE_URL) for metadata/sitemap
+  cache-tags.ts           CATALOG_TAG used by cached reads and actions
   format.ts               Price (৳), availability labels, dates, slugify
   utils.ts                cn()
 scripts/seed.ts           CLI entry for `bun run seed`
@@ -130,7 +131,9 @@ Current implementation: MongoDB via Mongoose. Collections are `categories` and `
 
 - Connection lives in `lib/data/mongoose.ts`, cached on `globalThis`.
 - `bun run seed` (or the admin "Reset demo data" action) wipes both collections and re-inserts `lib/mock-data.ts`.
-- Storefront routes are `force-dynamic` because the data changes at runtime.
+- `cacheComponents` is on. Cached reads use `'use cache'` + `cacheLife('hours')` + `cacheTag(CATALOG_TAG)` in `lib/data/catalog-repository.ts`; tag name lives in `lib/cache-tags.ts`.
+- Storefront pages are partially prerendered (static shell + streamed dynamic holes). Runtime data (`params`, `searchParams`, `cookies`, `usePathname`) must sit inside `<Suspense>`; that is why `loading.tsx` exists under `products`, and the admin/login auth checks are wrapped.
+- Route handlers that must not prerender call `await connection()` (see `app/sitemap.ts`). Don't use `export const dynamic`.
 
 Auth is a single account from `ADMIN_USERNAME` + `ADMIN_PASSWORD` (no defaults, no demo hint in the UI) with an HMAC-signed cookie (`AUTH_SECRET`).
 
@@ -138,7 +141,8 @@ Rules:
 
 - Pages/actions never import a database client directly; only `lib/data/*` may.
 - Every server action calls `getSession()` first and returns `{ ok: false, error }` instead of throwing.
-- Actions call `revalidatePath('/', 'layout')` after a write so storefront and admin refresh.
+- After a write, actions call `updateTag(CATALOG_TAG)` so cached reads expire immediately (read-your-own-writes), then admin lists call `router.refresh()`.
+- `bun run seed` bypasses the app, so it does not purge an in-memory cache; restart the dev server after seeding.
 - UI code must not read or write cookies.
 
 ## Auth flow

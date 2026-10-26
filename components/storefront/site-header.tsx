@@ -2,14 +2,15 @@
 
 import { LayoutDashboard, MapPin, Menu, Phone, Search, X } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { SiteNav, type SiteNavLink } from './site-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { adminRoutes, homeSectionHref, productsHref } from '@/lib/routes'
 import { shopConfig } from '@/lib/shop-config'
 import { cn } from '@/lib/utils'
 
-const links = [
+const links: SiteNavLink[] = [
   { key: 'home', href: '/', label: 'হোম' },
   { key: 'products', href: productsHref(), label: 'পণ্য' },
   { key: 'categories', href: homeSectionHref('categories'), label: 'ক্যাটাগরি' },
@@ -18,11 +19,8 @@ const links = [
 ]
 
 export function SiteHeader() {
-  const pathname = usePathname()
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
-
-  const isProducts = pathname.startsWith('/products')
 
   function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -45,25 +43,25 @@ export function SiteHeader() {
         </Link>
 
         <nav aria-label="প্রধান" className="ml-6 hidden md:block">
-          <ul className="flex items-center gap-1">
-            {links.map((link) => {
-              const active = link.key === 'products' ? isProducts : pathname === '/' && link.key === 'home'
-              return (
-                <li key={link.key}>
-                  <Link
-                    href={link.href}
-                    aria-current={active ? 'page' : undefined}
-                    className={cn(
-                      'rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-foreground',
-                      active ? 'text-foreground' : 'text-muted-foreground',
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
+          {/* Only the active-link state needs the pathname, so keep the header itself static. */}
+          <Suspense
+            fallback={
+              <ul className="flex items-center gap-1">
+                {links.map((link) => (
+                  <li key={link.key}>
+                    <Link
+                      href={link.href}
+                      className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            }
+          >
+            <SiteNav links={links} />
+          </Suspense>
         </nav>
 
         <form role="search" onSubmit={handleSearch} className="ml-auto hidden w-full max-w-xs items-center lg:flex">
