@@ -14,7 +14,7 @@ A catalog website for a local electronics and home-appliance shop (fridges, rice
 - Next.js 16 (App Router), React 19, TypeScript 5.7
 - Tailwind CSS v4 (tokens in `app/globals.css` under `@theme`, no `tailwind.config`)
 - shadcn/ui (Base UI primitives) with `lucide-react` icons
-- pnpm is the package manager
+- Bun is the package manager (`bun install`, `bun add`, `bunx`)
 - Planned: Supabase (Postgres, Auth, Storage, RLS)
 
 ## Directory map
@@ -114,9 +114,9 @@ Reads come from `useCatalog()`, which uses `subscribeCatalog` and `getCatalogSna
 
 ## Commands
 
-- `pnpm dev` starts the dev server
-- `pnpm build` makes a production build
-- `pnpm exec tsc --noEmit` runs the type check
+- `bun run dev` starts the dev server
+- `bun run build` makes a production build
+- `bunx tsc --noEmit` runs the type check
 
 ## Out of scope (for now)
 
