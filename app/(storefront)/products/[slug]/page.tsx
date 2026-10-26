@@ -3,6 +3,11 @@ import { notFound } from 'next/navigation'
 import { ProductDetailPage } from '@/components/storefront/product-detail-page'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 
+export async function generateStaticParams() {
+  const products = await catalogRepository.listPublishedProducts()
+  return products.map((product) => ({ slug: product.slug }))
+}
+
 export async function generateMetadata({
   params,
 }: {

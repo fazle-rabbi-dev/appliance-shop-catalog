@@ -4,6 +4,7 @@ const nextConfig = {
 		ignoreBuildErrors: true,
 	},
 	cacheComponents: true,
+	partialPrefetching: true,
 	images: {
 		unoptimized: true,
 	},
