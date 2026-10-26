@@ -1,9 +1,8 @@
-import { Plus, RotateCcw } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { AvailabilityBadge } from '@/components/shared/availability-badge'
 import { ProductImage } from '@/components/shared/product-image'
 import { buttonVariants } from '@/components/ui/button'
-import { ResetDemoData } from '@/components/admin/reset-demo-data'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 import { formatDate, formatTaka } from '@/lib/format'
 import { adminRoutes } from '@/lib/routes'
@@ -90,19 +89,6 @@ export default async function AdminDashboardRoute() {
             ))}
           </ul>
         )}
-      </section>
-
-      <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <RotateCcw className="size-4 text-muted-foreground" aria-hidden="true" />
-            ডেমো ডেটা ফিরিয়ে আনুন
-          </h2>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            বর্তমান ক্যাটালগ মুছে আগের নমুনা ডেটা বসিয়ে দেবে।
-          </p>
-        </div>
-        <ResetDemoData />
       </section>
     </div>
   )
