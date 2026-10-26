@@ -3,22 +3,26 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Noto_Sans_Bengali } from 'next/font/google'
 import { ToastProvider } from '@/components/shared/toast-provider'
 import { ThemeProvider } from '@/components/theme-provider'
+import { siteUrl } from '@/lib/site'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
 const bengali = Noto_Sans_Bengali({ subsets: ['bengali'], variable: '--font-bengali', display: 'swap' })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'রহমান ইলেকট্রনিকস — হোম অ্যাপ্লায়েন্স ক্যাটালগ',
   description:
     'ফ্রিজ, রাইস কুকার, টিভি, ফ্যান, ব্লেন্ডারসহ নানা হোম অ্যাপ্লায়েন্স দেখুন। দোকানে আসার আগেই দাম ও স্টক জেনে নিন।',
   icons: {
     icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
     ],
-    apple: '/apple-icon.png',
+    shortcut: '/favicon.ico',
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
 }
 

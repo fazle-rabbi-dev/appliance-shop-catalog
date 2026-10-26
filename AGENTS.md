@@ -32,6 +32,9 @@ A catalog website for a local electronics and home-appliance shop (fridges, rice
 app/
   layout.tsx              Fonts, metadata, ToastProvider
   globals.css             Design tokens (colors, radius, fonts)
+  manifest.ts             Web app manifest (uses /public icon pack)
+  robots.ts               robots.txt (blocks /admin, /login)
+  sitemap.ts              Dynamic sitemap from MongoDB catalog
   (storefront)/
     layout.tsx            SiteHeader + SiteFooter + skip link
     page.tsx              Home
@@ -73,6 +76,7 @@ lib/
   product-validation.ts   Form + server-side validation, slug generation
   category-validation.ts  Category form + server-side validation
   shop-config.ts          Shop name, address, phone, hours, socials
+  site.ts                 Public origin (NEXT_PUBLIC_SITE_URL) for metadata/sitemap
   format.ts               Price (৳), availability labels, dates, slugify
   utils.ts                cn()
 scripts/seed.ts           CLI entry for `bun run seed`
