@@ -4,6 +4,7 @@ import { LayoutDashboard, MapPin, Menu, Phone, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { adminRoutes, homeSectionHref, productsHref } from '@/lib/routes'
 import { shopConfig } from '@/lib/shop-config'
 import { cn } from '@/lib/utils'
@@ -90,6 +91,8 @@ export function SiteHeader() {
           Staff
         </Link>
 
+        <ThemeToggle className="hidden sm:inline-flex" />
+
         <Link
           href={homeSectionHref('contact')}
           className="hidden shrink-0 items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary/90 active:translate-y-px sm:inline-flex lg:hidden xl:inline-flex"
@@ -149,6 +152,10 @@ export function SiteHeader() {
                     <LayoutDashboard className="size-4" aria-hidden="true" />
                     Staff login
                   </Link>
+                </li>
+                <li className="flex items-center justify-between gap-2 rounded-md px-2 py-1">
+                  <span className="text-base font-medium">Theme</span>
+                  <ThemeToggle />
                 </li>
               </ul>
             </nav>

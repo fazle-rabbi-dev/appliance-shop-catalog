@@ -3,6 +3,7 @@
 import { ArrowLeft, LayoutDashboard, LogOut, Package, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { adminRoutes } from '@/lib/routes'
 import { shopConfig } from '@/lib/shop-config'
 import { cn } from '@/lib/utils'
@@ -71,6 +72,7 @@ export function AdminShell({
 
           <div className="flex items-center justify-between gap-3 border-t border-border pt-3 sm:justify-end sm:border-t-0 sm:pt-0">
             <span className="truncate text-xs text-muted-foreground">{username}</span>
+            <ThemeToggle className="size-9" />
             <form action={signOut}>
               <button
                 type="submit"

@@ -23,6 +23,7 @@ A catalog website for a local electronics and home-appliance shop (fridges, rice
 - Tailwind CSS v4 (tokens in `app/globals.css` under `@theme`, no `tailwind.config`)
 - shadcn/ui (Base UI primitives) with `lucide-react` icons
 - Bun is the package manager (`bun install`, `bun add`, `bunx`)
+- `next-themes` for light/dark (class strategy on `<html>`, system default)
 - Planned: Supabase (Postgres, Auth, Storage, RLS)
 
 ## Directory map
@@ -149,6 +150,7 @@ request /admin/*
 
 - Split UI into small components. Pages compose them, so don't let `page.tsx` grow large.
 - Use semantic design tokens only (`bg-background`, `text-foreground`, `bg-primary`, and so on). No raw colors like `bg-white`.
+- Dark mode: both `:root` and `.dark` define the same token names in `app/globals.css`. Add any new color to both blocks. Toggle is `components/theme-toggle.tsx` (next-themes); never hardcode `dark:` color values, only use tokens.
 - Use at most 2 font families, set in `layout.tsx` and mapped in `globals.css`.
 - Prefer flex and gap. No `space-*` classes, and don't mix margin with gap.
 - Use the Tailwind spacing scale and avoid arbitrary values.

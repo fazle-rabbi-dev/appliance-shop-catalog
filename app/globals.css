@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --font-sans: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -68,6 +68,35 @@
   --input: #dcdedb;
   --ring: #2350c4;
   --radius: 0.75rem;
+}
+
+.dark {
+  color-scheme: dark;
+  /* Deep slate page, warm white ink, brighter blue accent */
+  --background: #0e1116;
+  --foreground: #e9ebef;
+  --card: #161a21;
+  --card-foreground: #e9ebef;
+  --popover: #161a21;
+  --popover-foreground: #e9ebef;
+  --primary: #6f9bf5;
+  --primary-foreground: #0b1220;
+  --secondary: #1e232c;
+  --secondary-foreground: #e9ebef;
+  --muted: #1b2028;
+  --muted-foreground: #9aa4b4;
+  --accent: #1c2740;
+  --accent-foreground: #c3d4fa;
+  --surface: #12161c;
+  --destructive: #f0736b;
+  --destructive-foreground: #1a0f0f;
+  --success: #4ad39a;
+  --success-soft: #10241c;
+  --warning: #e0ab5c;
+  --warning-soft: #2a2114;
+  --border: #262c36;
+  --input: #313845;
+  --ring: #6f9bf5;
 }
 
 @layer base {

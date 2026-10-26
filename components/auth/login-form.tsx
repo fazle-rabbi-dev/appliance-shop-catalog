@@ -4,6 +4,7 @@ import { AlertCircle, Loader2, LockKeyhole } from 'lucide-react'
 import Link from 'next/link'
 import { useActionState } from 'react'
 import { signInAction, type LoginState } from '@/lib/actions/auth'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { shopConfig } from '@/lib/shop-config'
 
 const initialState: LoginState = {}
@@ -12,7 +13,8 @@ export function LoginForm({ next }: { next: string }) {
   const [state, formAction, pending] = useActionState(signInAction, initialState)
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-surface px-4 py-12">
+    <div className="relative flex min-h-dvh flex-col items-center justify-center gap-6 bg-surface px-4 py-12">
+      <ThemeToggle className="absolute top-4 right-4" />
       <div className="flex flex-col items-center gap-2 text-center">
         <span className="flex size-11 items-center justify-center rounded-xl bg-foreground text-background">
           <LockKeyhole className="size-5" aria-hidden="true" />
