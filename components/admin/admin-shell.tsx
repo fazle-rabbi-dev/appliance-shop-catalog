@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Info, LayoutDashboard, LogOut, Package, Plus } from 'lucide-react'
+import { ArrowLeft, LayoutDashboard, LogOut, Package, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { adminRoutes } from '@/lib/routes'
@@ -26,19 +26,6 @@ export function AdminShell({
 
   return (
     <div className="flex min-h-dvh flex-col bg-surface">
-      <div className="border-b border-warning/30 bg-warning-soft text-foreground">
-        <div className="mx-auto flex max-w-6xl items-start gap-2 px-4 py-2 text-xs leading-relaxed sm:items-center sm:px-6">
-          <Info className="mt-0.5 size-3.5 shrink-0 text-warning sm:mt-0" aria-hidden="true" />
-          <p>
-            <strong className="font-semibold">Prototype mode — mock data.</strong>{' '}
-            <span className="text-muted-foreground">
-              Catalog lives in memory on the server. Data access and auth are behind swappable boundaries, ready for
-              Supabase or MongoDB.
-            </span>
-          </p>
-        </div>
-      </div>
-
       <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center justify-between gap-4">
