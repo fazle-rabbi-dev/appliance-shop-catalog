@@ -1,7 +1,4 @@
-import { Suspense } from 'react'
-import { AdminShell } from '@/components/admin/admin-shell'
-import { signOutAction } from '@/lib/actions/auth'
-import { requireAdmin } from '@/lib/data/auth'
+import { AdminHeader } from '@/components/admin/admin-header'
 
 export const metadata = {
   title: 'অ্যাডমিন — রহমান ইলেকট্রনিকস',
@@ -9,25 +6,14 @@ export const metadata = {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-dvh items-center justify-center bg-surface text-sm text-muted-foreground">
-          লোড হচ্ছে…
-        </div>
-      }
-    >
-      <AdminArea>{children}</AdminArea>
-    </Suspense>
-  )
-}
-
-async function AdminArea({ children }: { children: React.ReactNode }) {
-  const user = await requireAdmin('/admin')
+  const username = process.env.ADMIN_USERNAME ?? 'অ্যাডমিন'
 
   return (
-    <AdminShell username={user.username} signOut={signOutAction}>
-      {children}
-    </AdminShell>
+    <div className="flex min-h-dvh flex-col bg-surface">
+      <AdminHeader username={username} />
+      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
+        {children}
+      </main>
+    </div>
   )
 }
