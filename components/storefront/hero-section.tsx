@@ -5,8 +5,9 @@ import { shopConfig } from '@/lib/shop-config'
 
 export function HeroSection() {
   return (
-    <section aria-labelledby="hero-title" className="border-b border-border">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:py-16 lg:grid-cols-12 lg:items-center lg:gap-12 lg:px-8 lg:py-20">
+    <section aria-labelledby="hero-title" className="relative overflow-hidden border-b border-border">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-grid" />
+      <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:py-16 lg:grid-cols-12 lg:items-center lg:gap-12 lg:px-8 lg:py-20">
         <div className="flex flex-col gap-6 lg:col-span-6">
           <p className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             <MapPin className="size-3.5 text-primary" aria-hidden="true" />
