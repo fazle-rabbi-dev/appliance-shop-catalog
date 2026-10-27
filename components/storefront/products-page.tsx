@@ -87,13 +87,13 @@ export function ProductsPage({
         </ol>
       </nav>
 
-      <div className="mb-6 flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{heading}</h1>
-        {activeCategory ? <p className="text-base text-muted-foreground">{activeCategory.description}</p> : null}
-      </div>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex min-w-0 flex-col gap-2">
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{heading}</h1>
+          {activeCategory ? <p className="text-base text-muted-foreground">{activeCategory.description}</p> : null}
+        </div>
 
-      <div className="mb-6 flex flex-col gap-4">
-        <form role="search" onSubmit={handleSearch} key={query ?? ''} className="relative md:max-w-md">
+        <form role="search" onSubmit={handleSearch} key={query ?? ''} className="relative w-full md:w-96 md:shrink-0">
           <label htmlFor="catalog-search" className="sr-only">
             {heading}-এ খুঁজুন
           </label>
@@ -113,8 +113,10 @@ export function ProductsPage({
             খুঁজুন
           </button>
         </form>
+      </div>
 
-        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div className="mb-6 flex flex-col gap-4">
+        <div className="-mx-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0">
           <ul className="flex w-max gap-2" aria-label="ক্যাটাগরি দিয়ে ফিল্টার">
             <li>
               <Link
