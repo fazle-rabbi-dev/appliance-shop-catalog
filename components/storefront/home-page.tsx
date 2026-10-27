@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { CategoryGrid } from './category-grid'
 import { HeroSection } from './hero-section'
 import { ProductCard } from './product-card'
+import { ShopMapSection } from './shop-map'
 import { AboutSection, ContactSection } from './visit-section'
 import { productsHref } from '@/lib/routes'
 import type { Category, Product } from '@/lib/types'
@@ -56,6 +57,7 @@ export function HomePage({ categories, products }: { categories: Category[]; pro
 
       <AboutSection />
       <ContactSection />
+      <ShopMapSection />
     </>
   )
 }

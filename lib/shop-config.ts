@@ -17,12 +17,24 @@ export const shopConfig = {
   phoneHref: 'tel:+8801700000000',
   /** Demo WhatsApp number in international format, digits only. */
   whatsappNumber: '8801700000000',
-  /** Replace with the shop's real Google Maps share link. */
-  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Rahman+Electronics+Bangladesh',
+  /** Map pin. Drives the embedded map and every Google Maps link. */
+  coordinates: { lat: 24.757655, lng: 90.657191 },
   hours: [
     { days: 'শনি – বৃহস্পতি', time: 'সকাল ৯টা – রাত ৯টা' },
     { days: 'শুক্রবার', time: 'বিকাল ৩টা – রাত ৯টা' },
   ],
+} as const
+
+const mapQuery = `${shopConfig.coordinates.lat},${shopConfig.coordinates.lng}`
+
+/** Google Maps URLs built from `shopConfig.coordinates`, so the pin lives in one place. */
+export const mapLinks = {
+  /** Keyless embed for the home page map. */
+  embed: `https://www.google.com/maps?q=${mapQuery}&z=16&output=embed`,
+  /** Opens the pin in Google Maps. */
+  place: `https://www.google.com/maps/search/?api=1&query=${mapQuery}`,
+  /** Opens turn-by-turn directions. */
+  directions: `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`,
 } as const
 
 export function whatsappLink(message?: string) {

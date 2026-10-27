@@ -1,5 +1,5 @@
 import { Clock, MapPin, MessageCircle, Phone } from 'lucide-react'
-import { shopConfig, whatsappLink } from '@/lib/shop-config'
+import { mapLinks, shopConfig, whatsappLink } from '@/lib/shop-config'
 
 const reasons = [
   { title: 'নিজে দেখে নিন', body: 'ফ্রিজের দরজা খুলুন, ফ্যানের শব্দ শুনুন, টিভির ছবি দেখুন — তারপর সিদ্ধান্ত নিন।' },
@@ -77,7 +77,7 @@ export function ContactSection() {
                 <br />
                 {address.country}
                 <a
-                  href={shopConfig.mapsUrl}
+                  href={mapLinks.place}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-2 block text-sm font-medium underline underline-offset-4 hover:no-underline"
