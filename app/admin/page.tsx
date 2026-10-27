@@ -10,8 +10,6 @@ import { cn } from "@/lib/utils";
 import { connection } from "next/server";
 
 export default async function AdminDashboardRoute() {
-	await connection();
-
 	const [products, categories] = await Promise.all([
 		catalogRepository.listProducts(),
 		catalogRepository.listCategories(),
