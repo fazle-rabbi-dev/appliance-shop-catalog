@@ -109,7 +109,7 @@ function SortableImageRow({
     <li
       ref={handle.setNodeRef}
       style={style}
-      className={cn('relative flex gap-3 rounded-lg', handle.isDragging && 'z-10 bg-card opacity-90 shadow-lg')}
+      className={cn('relative flex min-w-0 gap-3 rounded-lg', handle.isDragging && 'z-10 bg-card opacity-90 shadow-lg')}
     >
       {children(handle)}
     </li>
@@ -270,7 +270,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
   const errorId = (name: string) => (errors[name as keyof ProductFormErrors] ? `${fieldId(name)}-error` : undefined)
 
   return (
-    <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form noValidate onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-6">
       <div className="flex flex-col gap-2">
         <Link
           href={adminRoutes.products}
@@ -288,8 +288,8 @@ export function ProductForm({ product, categories }: { product?: Product; catego
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="flex flex-col gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="flex min-w-0 flex-col gap-6">
           <Fieldset legend="মূল তথ্য">
             <Field label="পণ্যের নাম" required id={fieldId('name')} error={errors.name}>
               <input
@@ -325,7 +325,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               />
             </Field>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="ক্যাটাগরি" required id={fieldId('categoryId')} error={errors.categoryId}>
                 <select
                   id={fieldId('categoryId')}
@@ -436,7 +436,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                             <ProductImage
                               src={image.url.trim() && isValidImageUrl(image.url) ? image.url.trim() : undefined}
                               alt={`ছবি ${index + 1} এর প্রিভিউ`}
-                              className="size-20 shrink-0 rounded-lg border border-border"
+                              className="size-16 shrink-0 rounded-lg border border-border sm:size-20"
                             />
                             <div className="flex min-w-0 flex-1 flex-col gap-2">
                               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -469,7 +469,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                                   htmlFor={fileId}
                                   className={cn(
                                     buttonVariants({ variant: 'outline' }),
-                                    'h-10 cursor-pointer px-3 peer-focus-visible:ring-2 peer-focus-visible:ring-ring/50',
+                                    'h-10 cursor-pointer px-3 text-center whitespace-normal peer-focus-visible:ring-2 peer-focus-visible:ring-ring/50',
                                     (busy || disabled) && 'pointer-events-none opacity-50',
                                   )}
                                 >
@@ -576,7 +576,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
           </Fieldset>
         </div>
 
-        <aside className="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
+        <aside className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
           <Fieldset legend="দৃশ্যমানতা ও স্টক">
             <Field label="স্টক" id={fieldId('availability')}>
               <select
