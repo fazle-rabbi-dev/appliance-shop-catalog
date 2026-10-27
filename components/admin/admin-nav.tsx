@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 
 const NAV = [
   { href: adminRoutes.dashboard, label: 'সারসংক্ষেপ', icon: LayoutDashboard, exact: true },
-  { href: adminRoutes.products, label: 'পণ্য', icon: Package, exact: false },
+  { href: adminRoutes.products, label: 'পণ্য', icon: Package, exact: true },
   { href: adminRoutes.categories, label: 'ক্যাটাগরি', icon: Tags, exact: false },
   { href: adminRoutes.newProduct, label: 'পণ্য যোগ করুন', icon: Plus, exact: true },
 ] as const
