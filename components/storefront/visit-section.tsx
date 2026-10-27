@@ -34,19 +34,19 @@ export function ContactSection() {
   const { address, hours } = shopConfig
   return (
     <section id="contact" aria-labelledby="contact-title" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="overflow-hidden rounded-2xl bg-foreground text-background">
+      <div className="overflow-hidden rounded-2xl bg-contact text-footer-foreground">
         <div className="grid gap-10 p-6 sm:p-10 lg:grid-cols-2 lg:p-12">
           <div className="flex flex-col gap-4">
             <h2 id="contact-title" className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
               দোকানে আসুন বা ফোন করুন
             </h2>
-            <p className="max-w-md text-base leading-relaxed text-background/75">
+            <p className="max-w-md text-base leading-relaxed text-footer-foreground/75">
               দাম আর স্টক প্রায়ই বদলায়। আসার আগে ফোন বা মেসেজ দিন, আমরা স্টক নিশ্চিত করে জানাব।
             </p>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row">
               <a
                 href={shopConfig.phoneHref}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-background px-5 text-base font-medium text-foreground transition-opacity hover:opacity-90"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-footer-foreground px-5 text-base font-medium text-footer transition-opacity hover:opacity-90"
               >
                 <Phone className="size-4" aria-hidden="true" />
                 কল করুন {shopConfig.phoneDisplay}
@@ -55,18 +55,18 @@ export function ContactSection() {
                 href={whatsappLink(`Hello ${shopConfig.name}, I have a question about a product.`)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-background/25 px-5 text-base font-medium transition-colors hover:bg-background/10"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-footer-foreground/25 px-5 text-base font-medium transition-colors hover:bg-footer-foreground/10"
               >
                 <MessageCircle className="size-4" aria-hidden="true" />
                 WhatsApp
               </a>
             </div>
-            <p className="text-xs text-background/60">যোগাযোগের তথ্য ডেমো — lib/shop-config.ts এ বদলে নিন।</p>
+            <p className="text-xs text-footer-foreground/60">যোগাযোগের তথ্য ডেমো — lib/shop-config.ts এ বদলে নিন।</p>
           </div>
 
           <dl className="grid gap-6 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <dt className="flex items-center gap-2 text-sm text-background/60">
+              <dt className="flex items-center gap-2 text-sm text-footer-foreground/60">
                 <MapPin className="size-4" aria-hidden="true" />
                 ঠিকানা
               </dt>
@@ -87,7 +87,7 @@ export function ContactSection() {
               </dd>
             </div>
             <div className="flex flex-col gap-2">
-              <dt className="flex items-center gap-2 text-sm text-background/60">
+              <dt className="flex items-center gap-2 text-sm text-footer-foreground/60">
                 <Clock className="size-4" aria-hidden="true" />
                 খোলার সময়
               </dt>
@@ -95,7 +95,7 @@ export function ContactSection() {
                 {hours.map((h) => (
                   <span key={h.days} className="flex flex-col">
                     <span>{h.days}</span>
-                    <span className="text-sm text-background/70">{h.time}</span>
+                    <span className="text-sm text-footer-foreground/70">{h.time}</span>
                   </span>
                 ))}
               </dd>
