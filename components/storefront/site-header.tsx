@@ -1,9 +1,10 @@
 'use client'
 
 import { LayoutDashboard, MapPin, Menu, Phone, Search, X } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { SiteNav, type SiteNavLink } from './site-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { adminRoutes, homeSectionHref, productsHref } from '@/lib/routes'
@@ -22,6 +23,15 @@ export function SiteHeader() {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
 
+  useEffect(() => {
+    if (!menuOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [menuOpen])
+
   function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const q = String(new FormData(event.currentTarget).get('q') ?? '').trim()
@@ -33,9 +43,14 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label={`${shopConfig.name} — হোম`}>
-          <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-sm font-bold text-background">
-            {shopConfig.shortName.charAt(0)}
-          </span>
+          <Image
+            src="/favicon.svg"
+            alt=""
+            width={32}
+            height={32}
+            unoptimized
+            className="size-8 shrink-0"
+          />
           <span className="flex flex-col leading-tight">
             <span className="text-sm font-semibold tracking-tight">{shopConfig.name}</span>
             <span className="hidden text-xs text-muted-foreground sm:block">হোম অ্যাপ্লায়েন্স</span>
