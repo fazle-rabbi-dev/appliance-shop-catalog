@@ -1,13 +1,14 @@
 'use client'
 
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Trash2, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { ProductImage } from '@/components/shared/product-image'
 import { useToast } from '@/components/shared/toast-provider'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { saveProductAction } from '@/lib/actions/catalog'
+import { deleteUploadedImageAction, getUploadSignatureAction } from '@/lib/actions/cloudinary'
 import { availabilityLabel, availabilityOptions, slugify } from '@/lib/format'
 import {
   hasErrors,
@@ -57,6 +58,8 @@ function toFormValues(product?: Product): ProductFormValues {
 const inputClass =
   'h-11 w-full rounded-lg border border-input bg-card px-3 text-base sm:text-sm aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/15'
 
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024
+
 export function ProductForm({ product, categories }: { product?: Product; categories: Category[] }) {
   const router = useRouter()
   const { notify } = useToast()
@@ -66,6 +69,8 @@ export function ProductForm({ product, categories }: { product?: Product; catego
   const [slugTouched, setSlugTouched] = useState(Boolean(product))
   const [submitted, setSubmitted] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
+  const uploadedPublicIds = useRef(new Set<string>())
 
   const isEdit = Boolean(product)
   const fieldId = (name: string) => `${uid}-${name}`
@@ -81,6 +86,87 @@ export function ProductForm({ product, categories }: { product?: Product; catego
       if (submitted) setErrors(collectErrors(next))
       return next
     })
+  }
+
+  function discardUploaded(publicId: string | null) {
+    if (!publicId || !uploadedPublicIds.current.has(publicId)) return
+    uploadedPublicIds.current.delete(publicId)
+    void deleteUploadedImageAction(publicId).then((result) => {
+      if (!result.ok) notify(result.error, 'error')
+    })
+  }
+
+  function removeImage(index: number) {
+    const image = values.images[index]
+    if (image?.publicId && !uploadedPublicIds.current.has(image.publicId)) {
+      notify('পণ্য সেভ করলে ছবিটি Cloudinary থেকেও মুছে যাবে।')
+    }
+    discardUploaded(image?.publicId ?? null)
+    update({ images: values.images.filter((_, i) => i !== index) })
+  }
+
+  async function uploadImage(index: number, file: File) {
+    const previousPublicId = values.images[index]?.publicId ?? null
+
+    if (!file.type.startsWith('image/')) {
+      notify('শুধু ছবি ফাইল আপলোড করুন।', 'error')
+      return
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      notify('ছবির আকার ৮ MB এর মধ্যে রাখুন।', 'error')
+      return
+    }
+
+    setUploadingIndex(index)
+    try {
+      const signature = await getUploadSignatureAction()
+      if (!signature.ok) throw new Error(signature.error)
+
+      const body = new FormData()
+      body.append('file', file)
+      body.append('api_key', signature.apiKey)
+      body.append('timestamp', String(signature.timestamp))
+      body.append('folder', signature.folder)
+      body.append('signature', signature.signature)
+
+      const response = await fetch(signature.uploadUrl, { method: 'POST', body })
+      const result = (await response.json()) as {
+        secure_url?: string
+        public_id?: string
+        error?: { message?: string }
+      }
+
+      if (!response.ok || !result.secure_url || !result.public_id) {
+        throw new Error(result.error?.message ?? 'ছবি আপলোড করা যায়নি।')
+      }
+
+      uploadedPublicIds.current.add(result.public_id)
+      if (previousPublicId && previousPublicId !== result.public_id) discardUploaded(previousPublicId)
+
+      setValues((current) => ({
+        ...current,
+        images: current.images.map((image, i) =>
+          i === index ? { url: result.secure_url!, publicId: result.public_id! } : image,
+        ),
+      }))
+      setErrors((current) => {
+        if (!submitted) return current
+        const next = { ...current }
+        delete next.images
+        if (next.imageRows) {
+          const imageRows = { ...next.imageRows }
+          delete imageRows[index]
+          if (Object.keys(imageRows).length) next.imageRows = imageRows
+          else delete next.imageRows
+        }
+        return next
+      })
+      notify('ছবি আপলোড হয়েছে।')
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'ছবি আপলোড করা যায়নি।', 'error')
+    } finally {
+      setUploadingIndex(null)
+    }
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -105,6 +191,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
     }
 
     notify(product ? `“${input.name}” এর পরিবর্তন সংরক্ষণ হয়েছে।` : `“${input.name}” যোগ করা হয়েছে।`)
+    uploadedPublicIds.current.clear()
     router.push(adminRoutes.products)
     router.refresh()
   }
@@ -242,52 +329,74 @@ export function ProductForm({ product, categories }: { product?: Product; catego
 
           <Fieldset legend="ছবি" required error={errors.images} errorId={`${fieldId('images')}-error`}>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              প্রথম ছবিটি মূল ছবি হিসেবে দেখানো হবে। পূর্ণ https:// লিংক অথবা /images/fan.png এর মতো পাথ দিন।
+              প্রথম ছবিটি মূল ছবি হিসেবে দেখানো হবে। JPG, PNG বা WebP ছবি আপলোড করুন (সর্বোচ্চ ৮ MB)। নতুন আপলোড করা
+              ছবি সরালে সাথে সাথে Cloudinary থেকেও মুছে যাবে; আগে সংরক্ষিত ছবি সরালে পণ্য সেভ করার সময় মুছে যাবে।
             </p>
             <ol className="flex flex-col gap-3">
               {values.images.map((image, index) => {
                 const rowError = errors.imageRows?.[index]
-                const rowId = `${fieldId('image')}-${index}`
+                const fileId = `${fieldId('image-file')}-${index}`
+                const busy = uploadingIndex === index
+                const disabled = uploadingIndex !== null && !busy
                 return (
                   <li key={index} className="flex gap-3">
                     <ProductImage
                       src={image.url.trim() && isValidImageUrl(image.url) ? image.url.trim() : undefined}
                       alt={`ছবি ${index + 1} এর প্রিভিউ`}
-                      className="size-16 shrink-0 rounded-lg border border-border"
+                      className="size-20 shrink-0 rounded-lg border border-border"
                     />
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <label htmlFor={rowId} className="text-xs font-medium text-muted-foreground">
-                        ছবি {index + 1}
-                        {index === 0 ? ' (মূল)' : ''}
-                      </label>
-                      <div className="flex gap-2">
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          ছবি {index + 1}
+                          {index === 0 ? ' (মূল)' : ''}
+                        </span>
+                        {image.publicId ? <span className="text-xs text-muted-foreground">Cloudinary</span> : null}
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {image.url || 'এখনো কোনো ছবি নেই'}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
                         <input
-                          id={rowId}
-                          type="url"
-                          inputMode="url"
-                          value={image.url}
-                          placeholder="https://…"
-                          onChange={(e) => {
-                            const images = [...values.images]
-                            images[index] = { ...image, url: e.target.value }
-                            update({ images })
+                          id={fileId}
+                          type="file"
+                          accept="image/*"
+                          className="peer sr-only"
+                          disabled={uploadingIndex !== null}
+                          aria-describedby={rowError ? `${fileId}-error` : undefined}
+                          onChange={(event) => {
+                            const file = event.target.files?.[0]
+                            event.target.value = ''
+                            if (file) void uploadImage(index, file)
                           }}
-                          aria-invalid={Boolean(rowError || (errors.images && index === 0))}
-                          aria-describedby={rowError ? `${rowId}-error` : errors.images ? `${fieldId('images')}-error` : undefined}
-                          className={inputClass}
                         />
+                        <label
+                          htmlFor={fileId}
+                          className={cn(
+                            buttonVariants({ variant: 'outline' }),
+                            'h-10 cursor-pointer px-3 peer-focus-visible:ring-2 peer-focus-visible:ring-ring/50',
+                            (busy || disabled) && 'pointer-events-none opacity-50',
+                          )}
+                        >
+                          {busy ? (
+                            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                          ) : (
+                            <Upload className="size-4" aria-hidden="true" />
+                          )}
+                          {busy ? 'আপলোড হচ্ছে…' : image.url ? 'ছবি বদলান' : 'ছবি আপলোড করুন'}
+                        </label>
                         <button
                           type="button"
-                          disabled={values.images.length === 1}
-                          onClick={() => update({ images: values.images.filter((_, i) => i !== index) })}
-                          className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
+                          disabled={values.images.length === 1 || uploadingIndex !== null}
+                          onClick={() => removeImage(index)}
+                          className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
                         >
                           <Trash2 className="size-4" aria-hidden="true" />
-                          <span className="sr-only">ছবি {index + 1} সরান</span>
+                          সরান
                         </button>
                       </div>
                       {rowError ? (
-                        <p id={`${rowId}-error`} className="text-xs text-destructive">
+                        <p id={`${fileId}-error`} className="text-xs text-destructive">
                           {rowError}
                         </p>
                       ) : null}
@@ -300,11 +409,11 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               type="button"
               variant="outline"
               className="h-10 w-fit px-3"
-              disabled={values.images.length >= 8}
+              disabled={values.images.length >= 8 || uploadingIndex !== null}
               onClick={() => update({ images: [...values.images, { url: '', publicId: null }] })}
             >
               <Plus aria-hidden="true" />
-              ছবির URL যোগ করুন
+              ছবি যোগ করুন
             </Button>
           </Fieldset>
 

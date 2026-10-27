@@ -53,7 +53,7 @@ export function validateProduct(values: ProductFormValues): ProductFormErrors {
   else if (values.description.length > 2000) errors.description = 'বিবরণ ২০০০ অক্ষরের মধ্যে রাখুন।'
 
   const filledImages = values.images.map((image) => image.url.trim()).filter(Boolean)
-  if (filledImages.length === 0) errors.images = 'অন্তত একটি ছবির URL দিন।'
+  if (filledImages.length === 0) errors.images = 'অন্তত একটি ছবি আপলোড করুন।'
   const imageRows: Record<number, string> = {}
   values.images.forEach((image, index) => {
     if (image.url.trim() && !isValidImageUrl(image.url)) imageRows[index] = 'পূর্ণ https:// URL অথবা /images/ পাথ দিন।'

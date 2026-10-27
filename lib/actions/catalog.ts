@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache'
 import { CATALOG_TAG } from '@/lib/cache-tags'
+import { deleteCloudinaryImages } from '@/lib/cloudinary'
 import { getSession } from '@/lib/data/auth'
 import { catalogRepository } from '@/lib/data/catalog-repository'
 import { validateProductInput } from '@/lib/product-validation'
@@ -32,7 +33,10 @@ export async function saveProductAction(id: string | null, input: ProductInput):
   if (problem) return { ok: false, error: problem }
 
   try {
-    const categories = await catalogRepository.listCategories()
+    const [categories, previous] = await Promise.all([
+      catalogRepository.listCategories(),
+      id ? catalogRepository.getProductById(id) : Promise.resolve(null),
+    ])
     if (!categories.some((category) => category.id === input.categoryId)) {
       return { ok: false, error: 'এই ক্যাটাগরিটি নেই।' }
     }
@@ -40,6 +44,14 @@ export async function saveProductAction(id: string | null, input: ProductInput):
     const product = id
       ? await catalogRepository.updateProduct(id, input)
       : await catalogRepository.createProduct(input)
+
+    if (previous) {
+      const kept = new Set(input.images.map((image) => image.publicId).filter(Boolean))
+      await deleteCloudinaryImages(
+        previous.images.filter((image) => image.publicId && !kept.has(image.publicId)).map((image) => image.publicId),
+      )
+    }
+
     refreshCatalog()
     return { ok: true, product }
   } catch (error) {
@@ -66,7 +78,9 @@ export async function deleteProductAction(id: string): Promise<ActionResult> {
   if (!(await getSession())) return { ok: false, error: INVALID_SESSION }
 
   try {
+    const product = await catalogRepository.getProductById(id)
     await catalogRepository.deleteProduct(id)
+    if (product) await deleteCloudinaryImages(product.images.map((image) => image.publicId))
     refreshCatalog()
     return { ok: true }
   } catch (error) {
@@ -78,7 +92,9 @@ export async function resetDemoDataAction(): Promise<ActionResult> {
   if (!(await getSession())) return { ok: false, error: INVALID_SESSION }
 
   try {
+    const products = await catalogRepository.listProducts()
     await catalogRepository.resetDemoData()
+    await deleteCloudinaryImages(products.flatMap((product) => product.images.map((image) => image.publicId)))
     refreshCatalog()
     return { ok: true }
   } catch (error) {
