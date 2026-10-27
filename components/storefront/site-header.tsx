@@ -40,94 +40,101 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label={`${shopConfig.name} — হোম`}>
-          <Image
-            src="/favicon.svg"
-            alt=""
-            width={32}
-            height={32}
-            unoptimized
-            className="size-8 shrink-0"
-          />
-          <span className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold tracking-tight">{shopConfig.name}</span>
-            <span className="hidden text-xs text-muted-foreground sm:block">হোম অ্যাপ্লায়েন্স</span>
-          </span>
-        </Link>
-
-        <nav aria-label="প্রধান" className="ml-6 hidden md:block">
-          {/* Only the active-link state needs the pathname, so keep the header itself static. */}
-          <Suspense
-            fallback={
-              <ul className="flex items-center gap-1">
-                {links.map((link) => (
-                  <li key={link.key}>
-                    <Link
-                      href={link.href}
-                      className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            }
-          >
-            <SiteNav links={links} />
-          </Suspense>
-        </nav>
-
-        <form role="search" onSubmit={handleSearch} className="ml-auto hidden w-full max-w-xs items-center lg:flex">
-          <label htmlFor="header-search" className="sr-only">
-            পণ্য খুঁজুন
-          </label>
-          <div className="relative w-full">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <input
-              id="header-search"
-              name="q"
-              type="search"
-              defaultValue=""
-              placeholder="ফ্রিজ, টিভি খুঁজুন…"
-              className="h-10 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20"
+    <>
+      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label={`${shopConfig.name} — হোম`}>
+            <Image
+              src="/favicon.svg"
+              alt=""
+              width={32}
+              height={32}
+              unoptimized
+              className="size-8 shrink-0"
             />
-          </div>
-        </form>
+            <span className="flex flex-col leading-tight">
+              <span className="text-sm font-semibold tracking-tight">{shopConfig.name}</span>
+              <span className="hidden text-xs text-muted-foreground sm:block">হোম অ্যাপ্লায়েন্স</span>
+            </span>
+          </Link>
 
-        <Link
-          href={adminRoutes.dashboard}
-          className="ml-auto hidden items-center gap-1.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex lg:ml-0"
-        >
-          <LayoutDashboard className="size-4" aria-hidden="true" />
-          স্টাফ
-        </Link>
+          <nav aria-label="প্রধান" className="ml-6 hidden md:block">
+            {/* Only the active-link state needs the pathname, so keep the header itself static. */}
+            <Suspense
+              fallback={
+                <ul className="flex items-center gap-1">
+                  {links.map((link) => (
+                    <li key={link.key}>
+                      <Link
+                        href={link.href}
+                        className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              }
+            >
+              <SiteNav links={links} />
+            </Suspense>
+          </nav>
 
-        <ThemeToggle className="hidden sm:inline-flex" />
+          <form role="search" onSubmit={handleSearch} className="ml-auto hidden w-full max-w-xs items-center lg:flex">
+            <label htmlFor="header-search" className="sr-only">
+              পণ্য খুঁজুন
+            </label>
+            <div className="relative w-full">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <input
+                id="header-search"
+                name="q"
+                type="search"
+                defaultValue=""
+                placeholder="ফ্রিজ, টিভি খুঁজুন…"
+                className="h-10 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20"
+              />
+            </div>
+          </form>
 
-        <Link
-          href={homeSectionHref('contact')}
-          className="hidden shrink-0 items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary/90 active:translate-y-px sm:inline-flex lg:hidden xl:inline-flex"
-        >
-          <MapPin className="size-4" aria-hidden="true" />
-          দোকানে আসুন
-        </Link>
+          <Link
+            href={adminRoutes.dashboard}
+            className="ml-auto hidden items-center gap-1.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex lg:ml-0"
+          >
+            <LayoutDashboard className="size-4" aria-hidden="true" />
+            অ্যাডমিন
+          </Link>
 
-        <button
-          type="button"
-          onClick={() => setMenuOpen((open) => !open)}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-          className="ml-auto inline-flex size-10 items-center justify-center rounded-lg border border-border sm:ml-0 md:hidden"
-        >
-          {menuOpen ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
-          <span className="sr-only">{menuOpen ? 'মেনু বন্ধ করুন' : 'মেনু খুলুন'}</span>
-        </button>
-      </div>
+          <ThemeToggle className="ml-auto inline-flex sm:ml-0" />
 
+          <Link
+            href={homeSectionHref('contact')}
+            className="hidden shrink-0 items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary/90 active:translate-y-px sm:inline-flex lg:hidden xl:inline-flex"
+          >
+            <MapPin className="size-4" aria-hidden="true" />
+            দোকানে আসুন
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            className="inline-flex size-10 items-center justify-center rounded-lg border border-border md:hidden"
+          >
+            {menuOpen ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
+            <span className="sr-only">{menuOpen ? 'মেনু বন্ধ করুন' : 'মেনু খুলুন'}</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Kept outside <header>: the header has backdrop-filter, which makes it a
+          backdrop root. A nested backdrop-filter would have nothing to blur. */}
       {menuOpen && (
-        <div id="mobile-menu" className="border-t border-border bg-background md:hidden">
+        <div
+          id="mobile-menu"
+          className="fixed inset-x-0 top-16 z-30 max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-background/80 shadow-lg backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 md:hidden"
+        >
           <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4">
             <form role="search" onSubmit={handleSearch} className="relative">
               <label htmlFor="mobile-search" className="sr-only">
@@ -163,7 +170,7 @@ export function SiteHeader() {
                     className="flex items-center gap-2 rounded-md px-2 py-3 text-base font-medium text-muted-foreground hover:bg-muted"
                   >
                     <LayoutDashboard className="size-4" aria-hidden="true" />
-                    স্টাফ লগইন
+                    অ্যাডমিন
                   </Link>
                 </li>
                 <li className="flex items-center justify-between gap-2 rounded-md px-2 py-1">
@@ -182,6 +189,6 @@ export function SiteHeader() {
           </div>
         </div>
       )}
-    </header>
+    </>
   )
 }
