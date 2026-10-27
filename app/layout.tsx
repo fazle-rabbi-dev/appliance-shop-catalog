@@ -1,13 +1,26 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Noto_Sans_Bengali } from 'next/font/google'
+import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import { ToastProvider } from '@/components/shared/toast-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { siteUrl } from '@/lib/site'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
-const bengali = Noto_Sans_Bengali({ subsets: ['bengali'], variable: '--font-bengali', display: 'swap' })
+
+const bengali = localFont({
+  src: [
+    { path: '../public/PurnoPran/Unicode/Li Purno Pran Unicode.ttf', weight: '400', style: 'normal' },
+    {
+      path: '../public/PurnoPran/Unicode/Li Purno Pran Unicode Italic.ttf',
+      weight: '400',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-bengali',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
