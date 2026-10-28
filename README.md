@@ -8,6 +8,8 @@
 
 Browse fridges, rice cookers, TVs, fans and small appliances. Check prices and stock before visiting the shop.
 
+<img src='./public/ss.png' alt='screenshot' width='80%' />
+
 <p align="center">
   <a href="https://nextjs.org"><img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?style=flat-square&labelColor=0F172A&logo=nextdotjs&logoColor=white" /></a> <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React-19-0EA5E9?style=flat-square&labelColor=0F172A&logo=react&logoColor=white" /></a> <a href="https://www.typescriptlang.org"><img alt="TypeScript 5.7" src="https://img.shields.io/badge/TypeScript-5.7-2563EB?style=flat-square&labelColor=0F172A&logo=typescript&logoColor=white" /></a> <a href="https://tailwindcss.com"><img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&labelColor=0F172A&logo=tailwindcss&logoColor=white" /></a> <a href="https://www.mongodb.com"><img alt="MongoDB + Mongoose" src="https://img.shields.io/badge/MongoDB-Mongoose-16A34A?style=flat-square&labelColor=0F172A&logo=mongodb&logoColor=white" /></a> <a href="https://bun.sh"><img alt="Bun" src="https://img.shields.io/badge/Bun-package_manager-F59E0B?style=flat-square&labelColor=0F172A&logo=bun&logoColor=white" /></a> <a href="#"><img alt="Status: working" src="https://img.shields.io/badge/status-working-22C55E?style=flat-square&labelColor=0F172A" /></a>
 </p>
@@ -26,12 +28,14 @@ Browse fridges, rice cookers, TVs, fans and small appliances. Check prices and s
 ## Features
 
 **Storefront**
+
 - Browse products by category, search by name and filter the catalog
 - Product detail pages with images, specs, price and availability
 - Visit information: phone, WhatsApp, opening hours and an embedded map
 - Bengali UI, responsive layout and light/dark themes
 
 **Admin**
+
 - Single-admin login using environment variables
 - Dashboard with product and stock counts
 - Create, edit and delete products
@@ -62,28 +66,28 @@ Open [http://localhost:3000](http://localhost:3000). The admin panel is at `/adm
 
 ### Environment variables
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `MONGODB_URI` | Yes | MongoDB connection string |
-| `MONGODB_DB` | No | Database name when the URI does not include one |
-| `ADMIN_USERNAME` | Yes | Admin login username |
-| `ADMIN_PASSWORD` | Yes | Admin login password |
-| `AUTH_SECRET` | Yes | Secret used to sign the session cookie |
-| `NEXT_PUBLIC_SITE_URL` | No | Public origin for metadata, robots and sitemap |
-| `CLOUDINARY_CLOUD_NAME` | No | Enables product image uploads |
-| `CLOUDINARY_API_KEY` | No | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | No | Cloudinary API secret (server only) |
-| `DNS_SERVERS` | No | Custom DNS servers for `mongodb+srv` lookups |
+| Variable                | Required | Purpose                                         |
+| ----------------------- | -------- | ----------------------------------------------- |
+| `MONGODB_URI`           | Yes      | MongoDB connection string                       |
+| `MONGODB_DB`            | No       | Database name when the URI does not include one |
+| `ADMIN_USERNAME`        | Yes      | Admin login username                            |
+| `ADMIN_PASSWORD`        | Yes      | Admin login password                            |
+| `AUTH_SECRET`           | Yes      | Secret used to sign the session cookie          |
+| `NEXT_PUBLIC_SITE_URL`  | No       | Public origin for metadata, robots and sitemap  |
+| `CLOUDINARY_CLOUD_NAME` | No       | Enables product image uploads                   |
+| `CLOUDINARY_API_KEY`    | No       | Cloudinary API key                              |
+| `CLOUDINARY_API_SECRET` | No       | Cloudinary API secret (server only)             |
+| `DNS_SERVERS`           | No       | Custom DNS servers for `mongodb+srv` lookups    |
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `bun run dev` | Start the development server |
-| `bun run build` | Create a production build |
-| `bun run start` | Start the production server |
-| `bun run seed` | Reset MongoDB with the demo catalog |
-| `bunx tsc --noEmit` | Type-check the project |
+| Command             | Description                         |
+| ------------------- | ----------------------------------- |
+| `bun run dev`       | Start the development server        |
+| `bun run build`     | Create a production build           |
+| `bun run start`     | Start the production server         |
+| `bun run seed`      | Reset MongoDB with the demo catalog |
+| `bunx tsc --noEmit` | Type-check the project              |
 
 ## Project notes
 
