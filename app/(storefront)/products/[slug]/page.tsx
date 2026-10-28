@@ -1,39 +1,52 @@
-import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
-import { ProductDetailPage } from '@/components/storefront/product-detail-page'
-import { catalogRepository } from '@/lib/data/catalog-repository'
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { ProductDetailPage } from "@/components/storefront/product-detail-page";
+import { catalogRepository } from "@/lib/data/catalog-repository";
 
 export async function generateStaticParams() {
-  const products = await catalogRepository.listPublishedProducts()
-  return products.map((product) => ({ slug: product.slug }))
+	const products = await catalogRepository.listPublishedProducts();
+
+	if (products.length === 0) {
+		return [{ slug: "hello-world" }, { slug: "getting-started" }];
+	}
+
+	return products.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({
-  params,
+	params,
 }: {
-  params: Promise<{ slug: string }>
+	params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params
-  const product = await catalogRepository.getPublishedProductBySlug(slug)
-  if (!product) return { title: 'পণ্য পাওয়া যায়নি — রহমান ইলেকট্রনিকস' }
-  return {
-    title: `${product.name} — রহমান ইলেকট্রনিকস`,
-    description: product.description.slice(0, 160),
-  }
+	const { slug } = await params;
+	const product = await catalogRepository.getPublishedProductBySlug(slug);
+	if (!product) return { title: "পণ্য পাওয়া যায়নি — রহমান ইলেকট্রনিকস" };
+	return {
+		title: `${product.name} — রহমান ইলেকট্রনিকস`,
+		description: product.description.slice(0, 160),
+	};
 }
 
 export default async function ProductRoute({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  const product = await catalogRepository.getPublishedProductBySlug(slug)
-  if (!product) notFound()
+	const { slug } = await params;
+	const product = await catalogRepository.getPublishedProductBySlug(slug);
+	if (!product) notFound();
 
-  const [categories, published] = await Promise.all([
-    catalogRepository.listCategories(),
-    catalogRepository.listPublishedProducts(),
-  ])
+	const [categories, published] = await Promise.all([
+		catalogRepository.listCategories(),
+		catalogRepository.listPublishedProducts(),
+	]);
 
-  const category = categories.find((c) => c.id === product.categoryId)
-  const related = published.filter((p) => p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4)
+	const category = categories.find((c) => c.id === product.categoryId);
+	const related = published
+		.filter((p) => p.categoryId === product.categoryId && p.id !== product.id)
+		.slice(0, 4);
 
-  return <ProductDetailPage product={product} category={category} related={related} />
+	return (
+		<ProductDetailPage
+			product={product}
+			category={category}
+			related={related}
+		/>
+	);
 }
